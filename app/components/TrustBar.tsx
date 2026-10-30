@@ -93,7 +93,7 @@ export function TrustBar({
               {/* play button */}
               <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
                 <span aria-hidden="true" className="day-ping"></span>
-                <span className="play-btn-shadow flex h-12 w-12 items-center justify-center rounded-full bg-primary z-1">
+                <span className="play-btn-shadow btn-hover-target flex h-12 w-12 items-center justify-center rounded-full z-1">
                   <svg width="22" height="24" viewBox="0 0 22 24" fill="none" aria-hidden="true">
                     <path
                       d="M3 2.6c0-1.2 1.3-1.95 2.34-1.34l13.2 8.9c.97.65.97 2.07 0 2.72l-13.2 8.9C4.3 23.4 3 22.6 3 21.4V2.6Z"
@@ -177,7 +177,7 @@ function VideoModal({poster, videoUrl, onClose}: VideoModalProps) {
           aria-label={t('aria.trust.close_video', 'Close video')}
           onClick={onClose}
           className="absolute right-3.5 top-3.5 flex h-10 w-10 items-center justify-center
-                     rounded-full bg-sand/15 text-sand text-xl hover:bg-sand/25 transition-colors">
+                     rounded-full bg-sand/15 text-sand text-xl hover:bg-sand/25 btn-smooth">
           ×
         </button>
       </div>

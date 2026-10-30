@@ -244,9 +244,23 @@ export const SF_SITE_SETTINGS_QUERY = `#graphql
     # primaryDomain rides along here so menu URLs can be internalised without a
     # second round trip — Shopify resolves FRONTPAGE menu items to the primary
     # domain, not the myshopify one.
-    shop { primaryDomain { host } }
+    # name is the site name — the logo's alt text when brand_name is blank.
+    shop { name primaryDomain { host } }
     metaobjects(type: "site_settings", first: 1) {
-      nodes { id handle fields { key value } }
+      nodes {
+        id
+        handle
+        fields {
+          key
+          value
+          # GenericFile as well as MediaImage: Shopify stores an uploaded SVG
+          # as a GenericFile, and the logo and favicon are SVGs.
+          reference {
+            ... on MediaImage { image { url altText } }
+            ... on GenericFile { url }
+          }
+        }
+      }
     }
   }
 `;
@@ -273,6 +287,16 @@ function fInt(fields: MetaField[], key: string): number {
 function fImg(fields: MetaField[], key: string) {
   const img = fields.find((x) => x.key === key)?.reference?.image;
   return img ? {url: img.url as string, altText: (img.altText as string) ?? ''} : null;
+}
+/**
+ * A file_reference that may hold an SVG. Shopify returns an uploaded SVG as a
+ * GenericFile, which has `url` directly and no `image` — so fImg sees nothing.
+ */
+function fFileUrl(fields: MetaField[], key: string): string {
+  const ref = fields.find((x) => x.key === key)?.reference as
+    | {url?: string; image?: {url?: string}}
+    | undefined;
+  return ref?.image?.url ?? ref?.url ?? '';
 }
 function fList(fields: MetaField[], key: string): string[] {
   const val = f(fields, key);
@@ -712,6 +736,11 @@ export function mapBookingTransfer(data: unknown) {
   };
 }
 
+/** Reads the store name (Admin > Settings > General) out of a SF_SITE_SETTINGS_QUERY result. */
+export function shopName(data: unknown): string {
+  return ((data as any)?.shop?.name as string) ?? '';
+}
+
 /** Reads the shop's primary domain host out of a SF_SITE_SETTINGS_QUERY result. */
 export function primaryDomainHost(data: unknown): string {
   return ((data as any)?.shop?.primaryDomain?.host as string) ?? '';
@@ -799,6 +828,10 @@ export function mapSiteSettings(data: unknown) {
     // Catalogue handles. Configuration, not content: these stay in English on
     // every store. They live in Admin so a second store can point at its own
     // products without a code change. Blank falls back to the defaults below.
+    // Brand assets. Empty falls back to the SVG bundled with the theme, so a
+    // store that has not uploaded its own still renders.
+    logoUrl: fFileUrl(fields, 'logo'),
+    faviconUrl: fFileUrl(fields, 'favicon'),
     tourProductHandle: f(fields, 'tour_product_handle'),
     quadProductHandle: f(fields, 'quad_product_handle'),
     transferProductHandle: f(fields, 'transfer_product_handle'),

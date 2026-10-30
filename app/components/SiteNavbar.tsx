@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useRouteLoaderData } from 'react-router';
 import { useT } from '~/lib/ui-strings';
-import logoSvg from '~/assets/chollodesierto.svg?url';
+import logoFallback from '~/assets/chollodesierto.svg?url';
 import type { RootLoader } from '~/root';
 
 /** Fallback used when the Shopify main-menu is empty or unreachable. */
@@ -20,7 +20,11 @@ export function SiteNavbar() {
   const [open, setOpen] = useState(false);
   // site_settings comes from the root loader (rendered on every page).
   const root = useRouteLoaderData<RootLoader>('root');
-  const brandName = root?.siteSettings?.brandName || 'Budget Desert Tour';
+  // The logo's alt text: the site name, from brand_name or else the store name.
+  const brandName = root?.siteSettings?.brandName || root?.shopName || 'Chollodesierto';
+  // Uploaded in Admin > Content > Metaobjects > Site Settings. The bundled
+  // SVG is only a fallback, so a store that has not set one still renders.
+  const logoUrl = root?.siteSettings?.logoUrl || logoFallback;
   const tagline =
     root?.siteSettings?.tagline || "Real Sahara.\nFair price.\nStories you'll tell forever.";
 
@@ -40,9 +44,9 @@ export function SiteNavbar() {
           <Link to="/" className="flex items-center gap-3 md:gap-4">
             {/* The wordmark carries the brand name as artwork; alt keeps it readable
                 to screen readers and still sourced from Shopify. */}
-            <img src={logoSvg} alt={brandName} className="h-9 w-auto shrink-0 md:h-10" />
+            <img src={logoUrl} alt={brandName} className="h-9 w-auto shrink-0 md:h-10" />
             <div className="hidden md:block w-px h-11 bg-sand/25" />
-            <p className="hidden md:block font-body text-author text-sand/60 whitespace-pre-line">
+            <p className="hidden md:block font-body text-author text-sand/60 text-shadow-slogan whitespace-pre-line">
               {tagline}
             </p>
           </Link>
@@ -113,7 +117,7 @@ function BookButton({ fullWidth = false }: { fullWidth?: boolean }) {
   return (
     <Link
       to="/booking"
-      className={`font-display text-btn text-sand text-center bg-primary rounded-full px-7 py-2 hover:opacity-90 transition-opacity whitespace-nowrap ${fullWidth ? 'w-full' : ''}`}
+      className={`font-display text-btn text-sand text-center rounded-full px-7 py-2 btn-primary whitespace-nowrap ${fullWidth ? 'w-full' : ''}`}
     >
       {t('nav.book_now', 'Book Now')}
     </Link>

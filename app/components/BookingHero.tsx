@@ -24,12 +24,12 @@ export function BookingHero({
   return (
     <PageHero
       ariaLabel={t('aria.booking.hero', 'Book your adventure')}
-      heading={headline || t('booking.hero_heading', 'Book your adventure.')}
+      heading={headline || t('booking.hero_heading', 'Book your adventure')}
       subtext={
         subtext ||
         t(
           'booking.hero_subtext',
-          "Five quick choices, and you're going. We'll handle the rest.",
+          "Five quick choices, and you're going.\nWe'll handle the rest.",
         )
       }
       image={image}

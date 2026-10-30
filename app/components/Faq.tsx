@@ -101,8 +101,7 @@ export function Faq({
           </p>
           <a
             href={whatsappUrl}
-            className="inline-flex items-center gap-2.5 rounded-full bg-[#25A65B] px-8.5 py-3.75 font-display text-btn text-white
-                       shadow-card transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#1f8f4c]"
+            className="inline-flex items-center gap-2.5 rounded-full px-8.5 py-3.75 font-display text-btn btn-whatsapp"
           >
             <WhatsAppIcon />
             {t('faq.chat_whatsapp', 'Chat on WhatsApp')}

@@ -1,4 +1,4 @@
-import {Link, useLoaderData} from 'react-router';
+import {useLoaderData} from 'react-router';
 import type {LoaderFunctionArgs, MetaFunction} from 'react-router';
 import {SiteNavbar} from '~/components/SiteNavbar';
 import {SiteFooter} from '~/components/SiteFooter';
@@ -130,15 +130,6 @@ export default function BlogPost() {
             article.image
               ? {src: article.image, alt: article.imageAlt || article.title}
               : null
-          }
-          breadcrumb={
-            <Link
-              to="/blog"
-              className="text-label font-bold uppercase tracking-[0.16em] text-white [text-shadow:0_1px_10px_rgba(60,25,8,0.4)]"
-            >
-              <span aria-hidden="true">&larr;</span>{' '}
-              {section?.labelSecondary || t('post.back_to_journal', 'Journal')}
-            </Link>
           }
         >
           {/* Authored in Shopify Admin, so the HTML is first-party. */}

@@ -279,7 +279,8 @@ export default function BookPage() {
       <main id="main-content">
         <BookingHero
           headline={sections['booking.hero']?.heading || undefined}
-          subtext={sections['booking.hero']?.subheading[0] || undefined}
+          // Each subheading line is its own line in the hero.
+          subtext={sections['booking.hero']?.subheading.join('\n') || undefined}
           image={sections['booking.hero']?.image?.url || undefined}
           imageAlt={sections['booking.hero']?.image?.alt || undefined}
         />

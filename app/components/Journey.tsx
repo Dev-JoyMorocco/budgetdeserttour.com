@@ -172,7 +172,7 @@ export function Journey({
               {/* Emoji + ground shadow */}
               <span className="relative mt-12 shrink-0">
                 <span role="img" aria-label={t('aria.journey.emoji_intro', 'Smiling face with sunglasses')} className="block text-4xl leading-none">
-                  {'\u{1F60E}'}
+                  {t('journey.intro_emoji', '\u{1F60E}')}
                 </span>
                 <span
                   aria-hidden="true"
@@ -215,10 +215,10 @@ export function Journey({
         <div aria-hidden="true" className="h-20 lg:mt-1 lg:ml-0.5 w-0 border-l-2 border-dashed border-primary/45" />
         <a
           href="/booking"
-          className="inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4.5 font-display text-btn text-sand shadow-card-m transition-all hover:scale-[1.03] hover:shadow-[0_0.75rem_2rem_rgba(196,90,44,0.45)]"
+          className="inline-flex items-center gap-3 rounded-full px-8 py-4.5 font-display text-btn text-sand btn-primary"
         >
           {t('journey.cta', 'Start your Journey Today')}
-          <span role="img" aria-label={t('aria.journey.emoji_quote', 'Winking face')} className="leading-none">{'\u{1F609}'}</span>
+          <span role="img" aria-label={t('aria.journey.emoji_quote', 'Winking face')} className="leading-none">{t('journey.cta_emoji', '\u{1F609}')}</span>
         </a>
       </div>
     </section>
@@ -506,7 +506,7 @@ function ImageCarousel({images}: {images: {src: string; alt: string}[]}) {
           type="button"
           aria-label={t('aria.journey.prev_photo', 'Previous photo')}
           onClick={() => advance(-1)}
-          className="pointer-events-auto flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white text-dark shadow-[0_0.25rem_0.75rem_rgba(0,0,0,0.22)] transition-transform hover:scale-105"
+          className="pointer-events-auto flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white text-dark shadow-[0_0.25rem_0.75rem_rgba(0,0,0,0.22)] btn-smooth hover:scale-105"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="m15 18-6-6 6-6" />
@@ -516,7 +516,7 @@ function ImageCarousel({images}: {images: {src: string; alt: string}[]}) {
           type="button"
           aria-label={t('aria.journey.next_photo', 'Next photo')}
           onClick={() => advance(1)}
-          className="pointer-events-auto flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white text-dark shadow-[0_0.25rem_0.75rem_rgba(0,0,0,0.22)] transition-transform hover:scale-105"
+          className="pointer-events-auto flex h-8.5 w-8.5 items-center justify-center rounded-full bg-white text-dark shadow-[0_0.25rem_0.75rem_rgba(0,0,0,0.22)] btn-smooth hover:scale-105"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="m9 18 6-6-6-6" />

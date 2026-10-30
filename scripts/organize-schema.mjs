@@ -191,6 +191,8 @@ const STRINGS = {
   // ── Homepage — journey ──
   'journey.highlights_title':['What you’ll see today', 'Journey — Highlights heading', JOURNEY, 'Above each day’s bullet list'],
   'journey.cta':             ['Start your Journey Today', 'Journey — Button', JOURNEY, 'Under the intro, links to the booking page'],
+  'journey.intro_emoji':     ['\u{1F60E}', 'Journey — Intro emoji', JOURNEY, 'Decorative. Paste any emoji, or clear it to hide.'],
+  'journey.cta_emoji':       ['\u{1F609}', 'Journey — Button emoji', JOURNEY, 'Decorative, sits after the button text.'],
   'journey.why_bubble':      ['Here’s why.', 'Journey — Speech bubble', JOURNEY, 'The little dark bubble next to the emoji'],
 
   // ── Homepage — routes (continued) ──
@@ -297,6 +299,8 @@ const STRINGS = {
   'about.stat_travelers':    ['Travelers hosted', 'About — Statistic 1 caption', ABOUT, 'Under the values cards'],
   'about.stat_rating':       ['Trusted by 3k people', 'About — Statistic 2 caption', ABOUT, 'Falls back to the Site Settings rating label'],
   'about.stat_agency':       ['Local agency', 'About — Statistic 3 caption', ABOUT, 'Under the values cards'],
+  'about.supports_emoji':    ['\u{270C}\u{1F9E1}', 'About — Supports emoji', ABOUT, 'Decorative, under the "Who your booking supports" statement.'],
+  'about.partners_emoji':    ['\u{1F602}\u{1F44C}', 'About — Partners emoji', ABOUT, 'Decorative, under the partners statement.'],
 
   // ── Journal (blog) ──
   'blog.heading':            ['Notes from the desert.', 'Journal — Heading', BLOG, 'Page Section blog.index wins if set'],

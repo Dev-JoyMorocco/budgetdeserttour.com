@@ -3,6 +3,9 @@
 @theme {
   /* Brand colors (from design system) */
   --color-primary: #C45A2C;   /* terracotta */
+  --color-primary-hover: #C7460E; /* darker terracotta — button hover */
+  --color-whatsapp:       #25A65B; /* WhatsApp buttons */
+  --color-whatsapp-hover: #009939;
   --color-sand:    #F5EDE0;   /* background */
   --color-dark:    #1A1F2E;   /* navy */
   --color-forest:  #3D5A40;   /* green accent */
@@ -43,6 +46,17 @@
   /* Shadows */
   --shadow-card:      0 0.2rem .5rem rgba(0, 0, 0, 0.1);
   --shadow-card-m:    0 0.25rem .5rem rgba(0, 0, 0, 0.15);
+
+  /* Navbar slogan over bright hero photos. Bump to 2px 2px if it reads too faint. */
+  --text-shadow-slogan: 1px 1px rgb(26 31 46 / 0.6);
+  --shadow-btn:       0 0.375rem 1rem rgba(199, 70, 14, 0.3);
+  --shadow-btn-hover: 0 0.75rem 2rem rgba(199, 70, 14, 0.4);
+  --shadow-whatsapp:       0 0.375rem 1rem rgba(0, 153, 57, 0.3);
+  --shadow-whatsapp-hover: 0 0.75rem 2rem rgba(0, 153, 57, 0.45);
+
+  /* Button hover transition — colour + shadow only, so it stays on under reduced motion */
+  --ease-btn: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-btn: 0.35s;
 
   /* Type scale (fluid) */
   --text-route-heading:    clamp(2rem, 4.4vw, 3.1rem);
@@ -86,6 +100,136 @@ a { text-decoration: none; }
   } 
 }
 
+/* ─── Orange CTA — single source for every orange button ───
+   Owns its default background + shadow (like .btn-whatsapp) so the hover is a
+   single-value change that the browser can fade. Don't combine with bg-* / shadow-*.
+   .btn-primary       background + shadow
+   .btn-primary-flat  background only (TourRoutes cards)
+   .btn-hover-target  orange icon inside a .group button (video play) */
+.btn-primary,
+.btn-primary-flat,
+.btn-hover-target {
+  background-color: var(--color-primary);
+  transition-property: background-color, box-shadow;
+  transition-duration: var(--duration-btn);
+  transition-timing-function: var(--ease-btn);
+}
+.btn-primary {
+  box-shadow: var(--shadow-btn);
+}
+.btn-primary:not(:disabled),
+.btn-primary-flat:not(:disabled) {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled),
+  .group:hover:not(:disabled) .btn-hover-target {
+    background-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-btn-hover);
+  }
+  .btn-primary-flat:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+  }
+}
+
+/* ─── Booking controls — each class owns its default, selected and hover
+   state (like .btn-primary) so the hover is a single fade. Colour + shadow only. ─── */
+.btn-light,
+.btn-dark,
+.btn-day,
+.btn-segment,
+.btn-card {
+  cursor: pointer;
+  transition-property: background-color, box-shadow, border-color, color;
+  transition-duration: var(--duration-btn);
+  transition-timing-function: var(--ease-btn);
+}
+.btn-light {                        /* white pill: stepper +/-, See All Stories, Load more */
+  background-color: #fff;
+  color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+.btn-dark {                         /* calendar month arrows */
+  background-color: var(--color-dark);
+  color: #fff;
+  box-shadow: 0 0 0 transparent;
+}
+.btn-day {                          /* calendar day */
+  background-color: transparent;
+  color: rgb(26 31 46 / 0.8);
+  box-shadow: 0 0 0 transparent;
+}
+.btn-day[data-state='range'] {
+  background-color: rgb(196 90 44 / 0.18);
+  color: var(--color-primary);
+}
+.btn-day[data-state='edge'] {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+.btn-segment {                      /* Yes/No, One way/Return */
+  background-color: transparent;
+  color: var(--color-dark);
+  box-shadow: 0 0 0 transparent;
+}
+.btn-segment[aria-pressed='true'] {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+.btn-card {                         /* route / camp selection */
+  background-color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-card);
+}
+.btn-card[aria-pressed='true'] {
+  background-color: var(--color-primary);
+}
+@media (hover: hover) {
+  .btn-light:hover,
+  .btn-dark:hover,
+  .btn-day:hover:not(:disabled),
+  .btn-segment:hover {
+    background-color: var(--color-primary-hover);
+    color: #fff;
+    box-shadow: var(--shadow-btn-hover);
+  }
+  .btn-card:hover {
+    box-shadow: var(--shadow-btn-hover);
+  }
+  .btn-card:not([aria-pressed='true']):hover {
+    border-color: var(--color-primary);
+  }
+}
+
+/* ─── Every other button — shared timing; hover look stays per component ─── */
+.btn-smooth {
+  transition-property: background-color, border-color, color, box-shadow, transform;
+  transition-duration: var(--duration-btn);
+  transition-timing-function: var(--ease-btn);
+}
+
+/* ─── WhatsApp button — single source for every WhatsApp CTA ───
+   Same rule as .btn-primary: only background colour and shadow change on hover. */
+.btn-whatsapp {
+  background-color: var(--color-whatsapp);
+  box-shadow: var(--shadow-whatsapp);
+  color: #fff;
+  cursor: pointer;
+  transition-property: background-color, box-shadow;
+  transition-duration: var(--duration-btn);
+  transition-timing-function: var(--ease-btn);
+}
+@media (hover: hover) {
+  .btn-whatsapp:hover:not([aria-disabled='true']) {
+    background-color: var(--color-whatsapp-hover);
+    box-shadow: var(--shadow-whatsapp-hover);
+  }
+}
+.btn-whatsapp[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 /* ─── Price underline accent ─── */
 .price-underline {
   position: relative;
@@ -101,7 +245,7 @@ a { text-decoration: none; }
      is tall (33.64 x 6.16), so it is stretched to the width of the word and
      given a fixed height rather than keeping its aspect ratio. */
   height: 0.6rem;
-  background: url('../assets/underline-dark.svg') no-repeat center / 100% 100%;
+  background: url('../assets/underline-light.svg') no-repeat center / 100% 100%;
 }
 
 /* For the same underline on a dark ground, where the orange would disappear. */
@@ -351,8 +495,8 @@ a { text-decoration: none; }
 @media (max-width: 40rem) {
   .article-body p { text-align: left; hyphens: manual; }
 }
-.article-body a { color: #C45A2C; text-decoration: underline; text-underline-offset: 2px; }
-.article-body a:hover { opacity: .85; }
+.article-body a { color: #C45A2C; text-decoration: none; text-underline-offset: 2px; }
+.article-body a:hover { text-decoration: underline; }
 .article-body strong { color: #1A1F2E; font-weight: 600; }
 .article-body ul,
 .article-body ol { padding-left: 1.3em; }

@@ -1,4 +1,5 @@
 import {useT} from '~/lib/ui-strings';
+import {Underline} from './Underline';
 
 interface SupportImage {
   src: string;
@@ -64,7 +65,7 @@ export function AboutBookingSupports({
                 <span className="text-label font-bold uppercase tracking-[0.22em] text-primary">
                   {eyebrow}
                 </span>
-                <Squiggle />
+                <Underline />
               </div>
               <h2 className="whitespace-pre-line font-display text-h2 leading-tight text-dark">
                 {title}
@@ -85,7 +86,7 @@ export function AboutBookingSupports({
                 <p key={i}>{line}</p>
               ))}
               <p aria-hidden="true" className="mt-2 text-[1.4rem]">
-                &#9996;&#129505;
+                {t('about.supports_emoji', '\u{270C}\u{1F9E1}')}
               </p>
             </div>
           </div>
@@ -96,18 +97,5 @@ export function AboutBookingSupports({
 }
 
 // ── Sub-components ──────────────────────────────────────────────
-
-function Squiggle() {
-  return (
-    <svg width="52" height="8" viewBox="0 0 52 8" fill="none" aria-hidden="true" className="text-primary">
-      <path
-        d="M1 5.5C6 1.5 11 1.5 16 5.5C21 9.5 26 9.5 31 5.5C36 1.5 41 1.5 46 5.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 export default AboutBookingSupports;

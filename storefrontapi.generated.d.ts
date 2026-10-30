@@ -86,7 +86,7 @@ export type SfTourProductQueryVariables = StorefrontAPI.Exact<{
 
 export type SfTourProductQuery = {
   product?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Product, 'id'> & {
+    Pick<StorefrontAPI.Product, 'id' | 'productType'> & {
       variants: {
         nodes: Array<{
           price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
@@ -94,6 +94,33 @@ export type SfTourProductQuery = {
             Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
           >;
         }>;
+      };
+    }
+  >;
+};
+
+export type SfAddonProductQueryVariables = StorefrontAPI.Exact<{
+  handle: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type SfAddonProductQuery = {
+  product?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Product, 'id' | 'title'> & {
+      featuredImage?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Image, 'url' | 'altText'>
+      >;
+      variants: {
+        nodes: Array<
+          Pick<
+            StorefrontAPI.ProductVariant,
+            'id' | 'title' | 'availableForSale'
+          > & {
+            price: Pick<StorefrontAPI.MoneyV2, 'amount'>;
+            image?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'url' | 'altText'>
+            >;
+          }
+        >;
       };
     }
   >;
@@ -108,7 +135,18 @@ export type SfSiteSettingsQuery = {
   metaobjects: {
     nodes: Array<
       Pick<StorefrontAPI.Metaobject, 'id' | 'handle'> & {
-        fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
+        fields: Array<
+          Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'> & {
+            reference?: StorefrontAPI.Maybe<
+              | Pick<StorefrontAPI.GenericFile, 'url'>
+              | {
+                  image?: StorefrontAPI.Maybe<
+                    Pick<StorefrontAPI.Image, 'url' | 'altText'>
+                  >;
+                }
+            >;
+          }
+        >;
       }
     >;
   };
@@ -467,6 +505,18 @@ export type ReviewsQuery = {
   };
 };
 
+export type BlogsQueryVariables = StorefrontAPI.Exact<{[key: string]: never}>;
+
+export type BlogsQuery = {
+  blogs: {
+    nodes: Array<
+      Pick<StorefrontAPI.Blog, 'handle'> & {
+        articles: {nodes: Array<Pick<StorefrontAPI.Article, 'id'>>};
+      }
+    >;
+  };
+};
+
 export type BlogArticlesQueryVariables = StorefrontAPI.Exact<{
   blogHandle: StorefrontAPI.Scalars['String']['input'];
   first: StorefrontAPI.Scalars['Int']['input'];
@@ -479,7 +529,13 @@ export type BlogArticlesQuery = {
         nodes: Array<
           Pick<
             StorefrontAPI.Article,
-            'id' | 'handle' | 'title' | 'excerpt' | 'publishedAt'
+            | 'id'
+            | 'handle'
+            | 'title'
+            | 'excerpt'
+            | 'publishedAt'
+            | 'tags'
+            | 'content'
           > & {
             image?: StorefrontAPI.Maybe<
               Pick<StorefrontAPI.Image, 'url' | 'altText'>
@@ -547,11 +603,15 @@ interface GeneratedQueryTypes {
     return: SfJourneyDaysQuery;
     variables: SfJourneyDaysQueryVariables;
   };
-  '#graphql\n  query SfTourProduct($handle: String!) {\n    product(handle: $handle) {\n      id\n      variants(first: 100) {\n        nodes {\n          price { amount currencyCode }\n          selectedOptions { name value }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query SfTourProduct($handle: String!) {\n    product(handle: $handle) {\n      id\n      # The JoyPlatform backend reads productType as the tour-type fallback and\n      # expects Private / Shared (or a recognised translation).\n      productType\n      variants(first: 100) {\n        nodes {\n          price { amount currencyCode }\n          selectedOptions { name value }\n        }\n      }\n    }\n  }\n': {
     return: SfTourProductQuery;
     variables: SfTourProductQueryVariables;
   };
-  '#graphql\n  query SfSiteSettings {\n    # primaryDomain rides along here so menu URLs can be internalised without a\n    # second round trip — Shopify resolves FRONTPAGE menu items to the primary\n    # domain, not the myshopify one.\n    shop { primaryDomain { host } }\n    metaobjects(type: "site_settings", first: 1) {\n      nodes { id handle fields { key value } }\n    }\n  }\n': {
+  '#graphql\n  query SfAddonProduct($handle: String!) {\n    product(handle: $handle) {\n      id\n      title\n      featuredImage { url altText }\n      variants(first: 20) {\n        nodes {\n          id\n          title\n          availableForSale\n          price { amount }\n          image { url altText }\n        }\n      }\n    }\n  }\n': {
+    return: SfAddonProductQuery;
+    variables: SfAddonProductQueryVariables;
+  };
+  '#graphql\n  query SfSiteSettings {\n    # primaryDomain rides along here so menu URLs can be internalised without a\n    # second round trip — Shopify resolves FRONTPAGE menu items to the primary\n    # domain, not the myshopify one.\n    shop { primaryDomain { host } }\n    metaobjects(type: "site_settings", first: 1) {\n      nodes {\n        id\n        handle\n        fields {\n          key\n          value\n          # GenericFile as well as MediaImage: Shopify stores an uploaded SVG\n          # as a GenericFile, and the logo and favicon are SVGs.\n          reference {\n            ... on MediaImage { image { url altText } }\n            ... on GenericFile { url }\n          }\n        }\n      }\n    }\n  }\n': {
     return: SfSiteSettingsQuery;
     variables: SfSiteSettingsQueryVariables;
   };
@@ -579,7 +639,11 @@ interface GeneratedQueryTypes {
     return: ReviewsQuery;
     variables: ReviewsQueryVariables;
   };
-  '#graphql\n  query BlogArticles($blogHandle: String!, $first: Int!) {\n    blog(handle: $blogHandle) {\n      title\n      handle\n      articles(first: $first, sortKey: PUBLISHED_AT, reverse: true) {\n        nodes {\n          id\n          handle\n          title\n          excerpt\n          publishedAt\n          image { url altText }\n          authorV2 { name }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query Blogs {\n    blogs(first: 20) {\n      nodes {\n        handle\n        articles(first: 1) { nodes { id } }\n      }\n    }\n  }\n': {
+    return: BlogsQuery;
+    variables: BlogsQueryVariables;
+  };
+  '#graphql\n  query BlogArticles($blogHandle: String!, $first: Int!) {\n    blog(handle: $blogHandle) {\n      title\n      handle\n      articles(first: $first, sortKey: PUBLISHED_AT, reverse: true) {\n        nodes {\n          id\n          handle\n          title\n          excerpt\n          publishedAt\n          # Tags become the category filter on the listing.\n          tags\n          # Plain text, only so the reading time can be counted. Shopify has no\n          # word-count field; this is the cheapest thing that yields one.\n          content\n          image { url altText }\n          authorV2 { name }\n        }\n      }\n    }\n  }\n': {
     return: BlogArticlesQuery;
     variables: BlogArticlesQueryVariables;
   };

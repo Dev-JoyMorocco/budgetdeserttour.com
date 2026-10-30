@@ -97,7 +97,8 @@ export default function BlogIndexRoute() {
           section?.image ? {src: section.image.url, alt: section.image.alt} : undefined
         }
         title={section?.heading || undefined}
-        subtitle={section?.subheading[0] || undefined}
+        // Each subheading line is its own line in the hero.
+        subtitle={section?.subheading.join('\n') || undefined}
         featured={newest ? toPost(newest) : null}
         categories={categories}
         posts={rest.map(toPost)}

@@ -61,6 +61,10 @@ function assertAdminDomain(domain, varName) {
  * `preferNew: false` — always the SHOPIFY_* store (the source).
  */
 export function resolveStore({preferNew = false, env = loadEnv()} = {}) {
+  // `--source` on any script forces the SHOPIFY_* store. Without it the only
+  // way to retarget was to edit .env, which is how a credential got deleted.
+  if (process.argv.includes('--source')) preferNew = false;
+
   const newDomain = env.NEW_STORE_DOMAIN || '';
   const newToken = env.NEW_ADMIN_ACCESS_TOKEN || '';
 

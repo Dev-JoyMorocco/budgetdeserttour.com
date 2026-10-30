@@ -301,10 +301,10 @@ export function CapturedByTribe({
                   type="button"
                   aria-label={t('aria.gallery.play_video', 'Play video: {name}', {name: item.alt})}
                   onClick={(e) => handleCardClick(e, item)}
-                  className="absolute inset-0 flex items-center justify-center"
+                  className="group absolute inset-0 flex items-center justify-center"
                 >
                   <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-                    <span className="play-btn-shadow flex h-10 w-10 items-center justify-center rounded-full bg-primary z-10">
+                    <span className="play-btn-shadow btn-hover-target flex h-10 w-10 items-center justify-center rounded-full z-10">
                       <svg width="14" height="16" viewBox="0 0 22 24" fill="none" aria-hidden="true">
                         <path
                           d="M3 2.6c0-1.2 1.3-1.95 2.34-1.34l13.2 8.9c.97.65.97 2.07 0 2.72l-13.2 8.9C4.3 23.4 3 22.6 3 21.4V2.6Z"
@@ -390,7 +390,7 @@ function VideoModal({item, onClose}: {item: TribeVideo; onClose: () => void}) {
           type="button"
           aria-label={t('aria.gallery.close_video', 'Close video')}
           onClick={onClose}
-          className="absolute right-3.5 top-3.5 flex h-10 w-10 items-center justify-center rounded-full bg-sand/15 text-xl text-sand transition-colors hover:bg-sand/25"
+          className="absolute right-3.5 top-3.5 flex h-10 w-10 items-center justify-center rounded-full bg-sand/15 text-xl text-sand btn-smooth hover:bg-sand/25"
         >
           ×
         </button>
@@ -414,7 +414,7 @@ function NavButton({
       aria-label={label}
       onClick={onClick}
       className="tribe-nav-btn flex h-9 w-9 items-center justify-center rounded-full bg-dark text-white
-                 transition-all duration-200
+                 btn-smooth
                  hover:scale-110 hover:bg-primary hover:shadow-[0_0.25rem_1.25rem_rgba(196,90,44,0.5)]
                  active:scale-90"
     >

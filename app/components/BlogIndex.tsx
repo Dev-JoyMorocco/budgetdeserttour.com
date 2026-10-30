@@ -67,14 +67,18 @@ export function BlogIndex({
       {/* ── Hero — shared with /booking, /contact, /faq and /reviews ── */}
       <PageHero
         ariaLabel={t('aria.blog.hero', 'Journal')}
-        heading={title || t('blog.heading', 'Notes from the desert.')}
+        heading={title || t('blog.heading', 'Stories from the road.')}
         subtext={
           subtitle ||
-          t('blog.hero_subtext', 'Field notes, routes and small lessons from the Sahara.')
+          t(
+            'blog.hero_subtext',
+            'Guides, tips, and tales from the Sahara\nwritten by people who actually live here.',
+          )
         }
         image={heroImage?.src}
         imageAlt={heroImage?.alt || ''}
         loading="eager"
+        underlineLastWord
       />
 
       <div className="mx-auto max-w-316 px-6 pb-24 pt-6">
@@ -99,7 +103,7 @@ export function BlogIndex({
                     setActive(c);
                     setShown(pageSize);
                   }}
-                  className={`h-12 rounded-full px-8 font-display text-[18px] font-bold shadow-card-m transition-colors ${
+                  className={`h-12 rounded-full px-8 font-display text-[18px] font-bold shadow-card-m btn-smooth ${
                     on ? 'bg-primary text-white' : 'bg-white text-dark hover:text-primary'
                   }`}
                 >
@@ -146,7 +150,7 @@ export function BlogIndex({
             <button
               type="button"
               onClick={() => setShown((s) => s + pageSize)}
-              className="h-13 rounded-full bg-white px-9 font-display text-[18px] font-bold text-primary shadow-card-m transition-colors hover:bg-primary hover:text-white"
+              className="h-13 rounded-full px-9 font-display text-[18px] font-bold btn-light"
             >
               {t('blog.load_more', 'Load more')} <span aria-hidden="true">&darr;</span>
             </button>

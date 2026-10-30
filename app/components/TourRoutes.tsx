@@ -1,6 +1,7 @@
 import {Fragment} from 'react';
 import {SafeImage} from './SafeImage';
 import {useT} from '~/lib/ui-strings';
+import {Underline} from './Underline';
 
 interface RouteStop {
   label: string;
@@ -83,11 +84,7 @@ export function TourRoutes({
       <div className="container max-w-content text-center">
         <p className="text-label font-bold uppercase text-primary">{eyebrow}</p>
         <div className="mt-2 flex justify-center" aria-hidden="true">
-          <svg width="64" height="16" viewBox="0 0 64 16" fill="none">
-            <svg width="50" height="18" viewBox="0 0 50 18" fill="none" aria-hidden="true">
-              <path d="M3 10 L25 6 L20 10 L40 9" stroke="#C15A2B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </svg>
+          <Underline />
         </div>
         <h2 className="py-3 text-h2 font-display text-dark">
           {heading}
@@ -218,7 +215,7 @@ function PriceBar({route}: {route: Route}) {
       </div>
       <a
         href={route.href}
-        className="ml-aut flex h-15 items-center gap-2 whitespace-nowrap rounded-full bg-primary px-6 text-btn font-display text-white"
+        className="ml-aut flex h-15 items-center gap-2 whitespace-nowrap rounded-full px-6 text-btn font-display text-white btn-primary-flat"
       >
         {t('routes.cta', 'Choose this route')} <span aria-hidden="true">→</span>
       </a>

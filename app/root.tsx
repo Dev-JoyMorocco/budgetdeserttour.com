@@ -11,7 +11,7 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from 'react-router';
-import favicon from '~/assets/favicon.svg';
+import faviconFallback from '~/assets/favicon.png';
 import tailwindCss from '~/styles/tailwind.css?url';
 import {
   SF_SITE_SETTINGS_QUERY,
@@ -19,6 +19,7 @@ import {
   mapSiteSettings,
   mapMenu,
   primaryDomainHost,
+  shopName,
 } from '~/lib/admin-queries';
 import {UI_STRINGS_QUERY, mapUiStrings} from '~/lib/ui-strings';
 
@@ -42,7 +43,8 @@ export function links() {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Patua+One&family=Nunito:wght@400;600;700;800&display=swap',
     },
-    {rel: 'icon', type: 'image/svg+xml', href: favicon},
+    // The favicon is NOT here: links() is static, so it cannot read the
+    // Shopify value. Layout renders it instead, below.
   ];
 }
 
@@ -67,6 +69,8 @@ export async function loader({context}: LoaderFunctionArgs) {
 
   return {
     siteSettings: mapSiteSettings(settingsRes),
+    /** Store name from Shopify — the site name wherever brand_name is blank. */
+    shopName: shopName(settingsRes),
     uiStrings: mapUiStrings(uiStringsRes),
     mainMenu: mapMenu(menuRes, internalHosts),
     footerMenu: mapMenu(footerMenuRes, internalHosts),
@@ -92,6 +96,19 @@ export function Layout({children}: {children?: React.ReactNode}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {/* Set in Admin > Content > Metaobjects > Site Settings. Rendered here
+            rather than in links(), which is static and cannot see loader data.
+            The bundled SVG is the fallback, so a store with no favicon
+            uploaded still gets one. */}
+        <link
+          rel="icon"
+          type={
+            (data?.siteSettings?.faviconUrl ?? '').endsWith('.png')
+              ? 'image/png'
+              : 'image/svg+xml'
+          }
+          href={data?.siteSettings?.faviconUrl || faviconFallback}
+        />
         <Meta />
         <Links />
       </head>

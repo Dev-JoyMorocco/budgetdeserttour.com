@@ -107,8 +107,7 @@ export default function ContactPage() {
                     href={whatsappUrl}
                     aria-label={t('aria.contact.whatsapp', 'Chat with us on WhatsApp')}
                     className="mt-6 inline-flex items-center justify-center gap-2.5 self-start rounded-full
-                               bg-primary px-7 py-3 font-display text-btn text-sand
-                               transition-opacity hover:opacity-90"
+                               px-7 py-3 font-display text-btn btn-whatsapp"
                   >
                     <WhatsAppIcon />
                     {whatsapp?.labelPrimary || t('contact.whatsapp_cta', 'Chat on WhatsApp')}
@@ -118,7 +117,7 @@ export default function ContactPage() {
                     <span
                       aria-disabled="true"
                       className="mt-6 inline-flex items-center justify-center gap-2.5 self-start rounded-full
-                                 bg-primary/50 px-7 py-3 font-display text-btn text-sand"
+                                 px-7 py-3 font-display text-btn btn-whatsapp"
                     >
                       <WhatsAppIcon />
                       {whatsapp?.labelPrimary || t('contact.whatsapp_cta', 'Chat on WhatsApp')}
@@ -224,8 +223,8 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled
-                className="mt-6 inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3
-                           font-display text-btn text-sand disabled:opacity-50"
+                className="mt-6 inline-flex items-center gap-2.5 rounded-full px-7 py-3
+                           font-display text-btn text-sand btn-primary disabled:opacity-50"
               >
                 {form?.labelPrimary || t('contact.form_cta', 'Send message')}
               </button>
@@ -279,7 +278,7 @@ function SocialLink({
     <a
       href={href}
       aria-label={label}
-      className={`${shape} text-dark transition-colors hover:border-primary hover:text-primary`}
+      className={`${shape} text-dark btn-smooth hover:border-primary hover:text-primary`}
     >
       <SocialIcon icon={icon} />
     </a>

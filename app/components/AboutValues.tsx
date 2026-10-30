@@ -1,4 +1,5 @@
 import {useT} from '~/lib/ui-strings';
+import {Underline} from './Underline';
 
 type ValueIcon = 'minibus' | 'landscape' | 'card' | 'heart';
 
@@ -67,7 +68,7 @@ export function AboutValues({
             <span className="text-label font-bold uppercase tracking-[0.22em] text-primary">
               {eyebrow || t('about.values_eyebrow', 'Our Values')}
             </span>
-            <Squiggle />
+            <Underline />
           </div>
           <h2 className="font-display text-[clamp(1.375rem,3.4vw,2.375rem)] text-dark">
             {title || t('about.values_heading', 'Four things we believe in.')}
@@ -112,19 +113,6 @@ export function AboutValues({
 }
 
 // ── Sub-components ──────────────────────────────────────────────
-
-function Squiggle() {
-  return (
-    <svg width="52" height="8" viewBox="0 0 52 8" fill="none" aria-hidden="true" className="text-primary">
-      <path
-        d="M1 5.5C6 1.5 11 1.5 16 5.5C21 9.5 26 9.5 31 5.5C36 1.5 41 1.5 46 5.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 function ValueGlyph({icon}: {icon: ValueIcon}) {
   switch (icon) {

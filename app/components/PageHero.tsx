@@ -13,6 +13,14 @@ export interface PageHeroProps {
    * `lazy`, which is what it shipped with.
    */
   loading?: 'eager' | 'lazy';
+  /** Draws the light hand-drawn swoosh under the subtext's last word. */
+  underlineLastWord?: boolean;
+}
+
+/** Splits "…actually live here." into ["…actually live ", "here", "."]. */
+function splitLastWord(text: string): [string, string, string] {
+  const match = text.match(/^([\s\S]*?)(\S+?)([.,!?…]*)\s*$/);
+  return match ? [match[1], match[2], match[3]] : [text, '', ''];
 }
 
 /**
@@ -33,7 +41,9 @@ export function PageHero({
   imageAlt = '',
   ariaLabel,
   loading = 'lazy',
+  underlineLastWord = false,
 }: PageHeroProps) {
+  const [lead, lastWord, trailing] = subtext ? splitLastWord(subtext) : ['', '', ''];
   return (
     <section aria-label={ariaLabel} className="relative overflow-hidden">
       <SafeImage
@@ -48,8 +58,24 @@ export function PageHero({
       />
       <div className="relative z-20 flex min-h-150 flex-col items-center justify-center px-6 text-center">
         <h1 className="font-display text-hero max-w-180 text-white">{heading}</h1>
+        {/* A subtext with its own line breaks sets its own line lengths, so it
+            gets the wider box; otherwise it wraps at the narrow one. */}
         {subtext && (
-          <p className="mt-8 text-lg text-white md:text-h3 max-w-90">{subtext}</p>
+          <p
+            className={`mt-8 whitespace-pre-line text-lg text-white md:text-h3 ${
+              subtext.includes('\n') ? 'max-w-160' : 'max-w-90'
+            }`}
+          >
+            {underlineLastWord && lastWord ? (
+              <>
+                {lead}
+                <span className="price-underline price-underline--light">{lastWord}</span>
+                {trailing}
+              </>
+            ) : (
+              subtext
+            )}
+          </p>
         )}
       </div>
     </section>

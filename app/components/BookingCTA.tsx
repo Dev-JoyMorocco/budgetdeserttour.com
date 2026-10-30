@@ -1,4 +1,5 @@
 import {useT} from '~/lib/ui-strings';
+import {Underline} from './Underline';
 
 interface ComparisonRow {
   /** The commodity/tourist-trap version (muted column). */
@@ -44,7 +45,7 @@ export function BookingCTA({
             {eyebrow}
           </p>
           <div className="mt-3 flex justify-center">
-            <LightningDivider />
+            <Underline />
           </div>
           <h2 className="mt-5 font-display text-sand text-h2">
             {heading}
@@ -93,20 +94,6 @@ export function BookingCTA({
 }
 
 // ── Sub-components ──────────────────────────────────────────────
-
-function LightningDivider() {
-  return (
-    <svg width="50" height="14" viewBox="0 0 50 14" fill="none" aria-hidden="true" className="text-primary">
-      <path
-        d="M3 9 L20 5 L30 8 L47 4"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function CheckIcon({className = ''}: {className?: string}) {
   return (

@@ -90,15 +90,15 @@ export const DEFAULT_CAMPS: CampOption[] = [
 // the Shopify metaobject handles, so the fallback data above and live
 // `tour_route` / `camp_tier` entries resolve through the same keys.
 export const DEFAULT_TOUR_VARIANT_IDS: Record<string, string> = {
-  'classic-loop-shared': 'gid://shopify/ProductVariant/50733187956933',
-  'classic-loop-comfort': 'gid://shopify/ProductVariant/50733187989701',
-  'classic-loop-superior': 'gid://shopify/ProductVariant/50733188022469',
-  'grand-crossing-shared': 'gid://shopify/ProductVariant/50733188055237',
-  'grand-crossing-comfort': 'gid://shopify/ProductVariant/50733188088005',
-  'grand-crossing-superior': 'gid://shopify/ProductVariant/50733188120773',
-  'reverse-crossing-shared': 'gid://shopify/ProductVariant/50733188153541',
-  'reverse-crossing-comfort': 'gid://shopify/ProductVariant/50733188186309',
-  'reverse-crossing-superior': 'gid://shopify/ProductVariant/50733188219077',
+  'classic-loop-shared': 'gid://shopify/ProductVariant/43295619022946',
+  'classic-loop-comfort': 'gid://shopify/ProductVariant/43295619055714',
+  'classic-loop-superior': 'gid://shopify/ProductVariant/43295619088482',
+  'grand-crossing-shared': 'gid://shopify/ProductVariant/43295619121250',
+  'grand-crossing-comfort': 'gid://shopify/ProductVariant/43295619154018',
+  'grand-crossing-superior': 'gid://shopify/ProductVariant/43295619186786',
+  'reverse-crossing-shared': 'gid://shopify/ProductVariant/43295619219554',
+  'reverse-crossing-comfort': 'gid://shopify/ProductVariant/43295619252322',
+  'reverse-crossing-superior': 'gid://shopify/ProductVariant/43295619285090',
 };
 
 export const DEFAULT_EXTRAS: ExtraOption[] = [
@@ -111,7 +111,7 @@ export const DEFAULT_EXTRAS: ExtraOption[] = [
     image:
       'https://images.unsplash.com/photo-1542401886-65d6c61db217?auto=format&fit=crop&w=300&q=80',
     imageAlt: 'Individual quad bike in the dunes',
-    variantId: 'gid://shopify/ProductVariant/50733195264197',
+    variantId: 'gid://shopify/ProductVariant/43295619317858',
     max: 10,
     defaultQty: 0,
   },
@@ -124,7 +124,7 @@ export const DEFAULT_EXTRAS: ExtraOption[] = [
     image:
       'https://images.unsplash.com/photo-1517824806704-9040b037703b?auto=format&fit=crop&w=300&q=80',
     imageAlt: 'Two travelers on a double quad bike',
-    variantId: 'gid://shopify/ProductVariant/50733195296965',
+    variantId: 'gid://shopify/ProductVariant/43295619350626',
     max: 10,
     defaultQty: 0,
   },
@@ -133,8 +133,8 @@ export const DEFAULT_EXTRAS: ExtraOption[] = [
 export const DEFAULT_TRANSFER: TransferConfig = {
   onewayPrice: 25,
   returnPrice: 45,
-  onewayVariantId: 'gid://shopify/ProductVariant/50733199458501',
-  returnVariantId: 'gid://shopify/ProductVariant/50733199491269',
+  onewayVariantId: 'gid://shopify/ProductVariant/43295619383394',
+  returnVariantId: 'gid://shopify/ProductVariant/43295619416162',
   image:
     'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=300&q=80',
   imageAlt: 'Private airport transfer vehicle',
@@ -290,6 +290,26 @@ function addDays(d: Date, n: number) {
   return copy;
 }
 
+/** "Today" for bookings is Morocco's today, whatever the server or visitor clock says. */
+const BOOKING_TIME_ZONE = 'Africa/Casablanca';
+
+/**
+ * Tomorrow's calendar day in Morocco, as a local-midnight Date — the shape
+ * buildMonthCells and toIsoDate work with. The Date constructor rolls the
+ * day over month and year ends (31 Oct → 1 Nov, 31 Dec → 1 Jan).
+ */
+function moroccoTomorrow(now = new Date()): Date {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: BOOKING_TIME_ZONE,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).formatToParts(now);
+  const part = (type: 'year' | 'month' | 'day') =>
+    Number(parts.find((p) => p.type === type)?.value);
+  return new Date(part('year'), part('month') - 1, part('day') + 1);
+}
+
 function buildMonthCells(
   year: number,
   monthIndex: number,
@@ -386,18 +406,21 @@ export function BookingBody({
   const [monthOffset, setMonthOffset] = useState(0);
   const [openFaq, setOpenFaq] = useState(-1);
   const DEFAULT_TRIP_DAYS = 2;
-  const [departDate, setDepartDate] = useState(() => new Date());
-  const [returnDate, setReturnDate] = useState(() => addDays(new Date(), DEFAULT_TRIP_DAYS),);
-  // Which month the left-hand pane starts on, fixed at mount. Deriving it from
-  // departDate meant that picking a day in the right-hand pane pushed the base
-  // forward a month, so both panes jumped and the day you clicked slid out of
-  // view. Only the arrows move the view now.
-  const [monthAnchor] = useState(() => {
-    const d = new Date();
-    return {year: d.getFullYear(), month: d.getMonth()};
-  });
-  // Nothing is pre-selected: the shopper states the party size themselves.
-  const [travelers, setTravelers] = useState(0);
+  // Defaults to tomorrow in Morocco. Server and browser both resolve the same
+  // day, so the first render hydrates without a date mismatch.
+  const [departDate, setDepartDate] = useState(() => moroccoTomorrow());
+  const [returnDate, setReturnDate] = useState(() => addDays(departDate, DEFAULT_TRIP_DAYS));
+  // Which month the left-hand pane starts on, fixed at mount: the default
+  // departure's month, so 31 Oct opens on November. Deriving it from departDate
+  // on every render meant that picking a day in the right-hand pane pushed the
+  // base forward a month, so both panes jumped and the day you clicked slid out
+  // of view. Only the arrows move the view now.
+  const [monthAnchor] = useState(() => ({
+    year: departDate.getFullYear(),
+    month: departDate.getMonth(),
+  }));
+  // Defaults to a single traveler; the shopper adjusts from there.
+  const [travelers, setTravelers] = useState(1);
   const [extraQtys, setExtraQtys] = useState<Record<string, number>>(() =>
     Object.fromEntries(extras.map((e) => [e.id, e.defaultQty ?? 0])),
   );
@@ -576,11 +599,7 @@ export function BookingBody({
                       type="button"
                       onClick={() => setRouteId(r.id)}
                       aria-pressed={selected}
-                      className={`flex min-h-28 items-center justify-between gap-4 rounded-card border-2 p-5 text-left transition-colors shadow-card ${
-                        selected
-                          ? 'border-transparent bg-primary'
-                          : 'border-transparent bg-white hover:border-primary'
-                      }`}
+                      className="flex min-h-28 items-center justify-between gap-4 rounded-card border-2 p-5 text-left btn-card"
                     >
                       <div className="flex flex-col justify-center items-center">
                         <p
@@ -652,11 +671,7 @@ export function BookingBody({
                       type="button"
                       onClick={() => setCampId(c.id)}
                       aria-pressed={selected}
-                      className={`flex min-h-28 items-center justify-between gap-3.5 rounded-card border-2 p-5 text-left transition-colors shadow-card ${
-                        selected
-                          ? 'border-transparent bg-primary'
-                          : 'border-transparent bg-white hover:border-primary'
-                      }`}
+                      className="flex min-h-28 items-center justify-between gap-3.5 rounded-card border-2 p-5 text-left btn-card"
                     >
                       <div className="flex flex-col justify-center items-center">
                         <p
@@ -699,7 +714,7 @@ export function BookingBody({
                           type="button"
                           aria-label={t('booking.aria_prev_month', 'Previous month')}
                           onClick={() => setMonthOffset((o) => o - 1)}
-                          className="flex size-8 items-center justify-center rounded-full border border-dark/15 bg-dark text-white"
+                          className="flex size-8 items-center justify-center rounded-full border border-dark/15 btn-dark"
                         >
                           &lsaquo;
                         </button>
@@ -710,7 +725,7 @@ export function BookingBody({
                           type="button"
                           aria-label={t('booking.aria_next_month', 'Next month')}
                           onClick={() => setMonthOffset((o) => o + 1)}
-                          className="flex size-8 items-center justify-center rounded-full border border-dark/15 bg-dark text-white"
+                          className="flex size-8 items-center justify-center rounded-full border border-dark/15 btn-dark"
                         >
                           &rsaquo;
                         </button>
@@ -732,14 +747,15 @@ export function BookingBody({
                             type="button"
                             disabled={cell.blank}
                             onClick={() => cell.date && pickDate(cell.date)}
-                            className={`aspect-square rounded-full text-label font-bold ${
+                            data-state={
+                              cell.isStart || cell.isEnd ? 'edge' : cell.inRange ? 'range' : undefined
+                            }
+                            className={`btn-day aspect-square rounded-full text-label ${
                               cell.blank
                                 ? 'invisible'
-                                : cell.isStart || cell.isEnd
-                                  ? 'bg-primary font-bold text-white'
-                                  : cell.inRange
-                                    ? 'bg-primary/18 font-semibold text-primary'
-                                    : 'bg-transparent text-dark/80'
+                                : cell.inRange && !cell.isStart && !cell.isEnd
+                                  ? 'font-semibold'
+                                  : 'font-bold'
                             }`}
                           >
                             {cell.day}
@@ -767,7 +783,7 @@ export function BookingBody({
                   type="button"
                   aria-label={t('booking.aria_decrease_travelers', 'Decrease travelers')}
                   onClick={() => setTravelers((t) => Math.max(0, t - 1))}
-                  className="flex h-14 w-14 items-center justify-center rounded-full bg-white hover:bg-primary text-4xl text-primary hover:text-white shadow-card"
+                  className="flex h-14 w-14 items-center justify-center rounded-full text-4xl btn-light"
                 >
                   &minus;
                 </button>
@@ -778,7 +794,7 @@ export function BookingBody({
                   type="button"
                   aria-label={t('booking.aria_increase_travelers', 'Increase travelers')}
                   onClick={() => setTravelers((t) => Math.min(17, t + 1))}
-                  className="flex h-14 w-14 items-center justify-center rounded-full bg-white hover:bg-primary text-4xl text-primary hover:text-white shadow-card"
+                  className="flex h-14 w-14 items-center justify-center rounded-full text-4xl btn-light"
                 >
                   +
                 </button>
@@ -857,7 +873,7 @@ export function BookingBody({
                           +€{transferPrice}
                         </p>
                       </div>
-                      <div className="shrink-0 self-stretch border-l-1 border-dashed border-primary" />
+                      <div className="shrink-0 self-stretch border-l border-dashed border-primary" />
                       <div className="flex shrink-0 flex-col justify-center gap-px px-4 font-bold text-left">
                         <span className="text-xs text-dark">
                           {travelers} {t('booking.travelers_word', 'Travelers')}
@@ -1005,7 +1021,7 @@ export function BookingBody({
                           +€{transferPrice}
                         </p>
                       </div>
-                      <div className="shrink-0 self-stretch border-l-1 border-dashed border-primary" />
+                      <div className="shrink-0 self-stretch border-l border-dashed border-primary" />
                       <div className="flex shrink-0 flex-col justify-center gap-px px-4 font-bold text-left">
                         <span className="text-xs text-dark">
                           {travelers} {t('booking.travelers_word', 'Travelers')}
@@ -1060,9 +1076,9 @@ export function BookingBody({
                 type="button"
                 onClick={handleReserve}
                 disabled={isReserving}
-                className="flex w-full items-center rounded-full bg-white p-1 text-btn text-forest shadow-card-m disabled:opacity-70"
+                className="group flex w-full cursor-pointer items-center rounded-full bg-white p-1 text-btn text-forest shadow-card-m disabled:cursor-not-allowed disabled:opacity-70"
               >
-                <span className="py-3 px-6 bg-amber-500 rounded-full text-white font-display">
+                <span className="py-3 px-6 rounded-full text-white font-display bg-amber-500 group-hover:bg-amber-600 group-disabled:bg-amber-600 btn-smooth">
                   {isReserving ? (
                     t('booking.reserving', 'Reserving\u2026')
                   ) : (
@@ -1112,7 +1128,7 @@ export function BookingBody({
               <a
                 href={whatsappHref}
                 aria-label={t('booking.aria_whatsapp', 'Chat with us on WhatsApp')}
-                className="flex items-center justify-center gap-2.5 rounded-full bg-green-600 px-5 py-3.25 text-btn font-display text-white"
+                className="flex items-center justify-center gap-2.5 rounded-full px-5 py-3.25 text-btn font-display btn-whatsapp"
               >
                 <WhatsAppIcon />
                 {t('booking.whatsapp_cta', 'Chat on WhatsApp')}
@@ -1285,7 +1301,7 @@ function TicketCard({
           <p className="text-label-2xs uppercase text-forest font-bold -mb-1">{eyebrow}</p>
           <p className="font-display text-price text-forest">{price}</p>
         </div>
-        <div className="self-stretch border-l-1 border-dashed border-primary" />
+        <div className="self-stretch border-l border-dashed border-primary" />
         <p className="flex flex-1 items-center px-4 text-xs text-dark font-bold">
           {label}
         </p>
@@ -1320,7 +1336,7 @@ function SummaryTicket({
           <p className="text-label-2xs uppercase text-forest font-bold -mb-1">{eyebrow}</p>
           <p className="font-display text-price text-forest">{price}</p>
         </div>
-        <div className="self-stretch border-l-1 border-dashed border-primary" />
+        <div className="self-stretch border-l border-dashed border-primary" />
         <p className="flex flex-1 items-center px-4 text-xs text-dark font-bold">
           {label}
         </p>
@@ -1354,7 +1370,7 @@ function Stepper({
         type="button"
         aria-label={decLabel}
         onClick={onDec}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-white hover:bg-primary text-4xl hover:text-white text-primary shadow-card"
+        className="flex h-14 w-14 items-center justify-center rounded-full text-4xl btn-light"
       >
         &minus;
       </button>
@@ -1365,7 +1381,7 @@ function Stepper({
         type="button"
         aria-label={incLabel}
         onClick={onInc}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-white hover:bg-primary text-4xl hover:text-white text-primary shadow-card"
+        className="flex h-14 w-14 items-center justify-center rounded-full text-4xl btn-light"
       >
         +
       </button>
@@ -1389,9 +1405,8 @@ function SegmentedControl({
           key={opt.value}
           type="button"
           onClick={() => onChange(opt.value)}
-          className={`rounded-full px- py-3 text-btn font-display w-full ${
-            opt.value === value ? 'bg-primary text-white' : 'text-dark'
-          }`}
+          aria-pressed={opt.value === value}
+          className="btn-segment rounded-full py-3 text-btn font-display w-full"
         >
           {opt.label}
         </button>

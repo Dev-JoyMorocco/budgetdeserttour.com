@@ -3,7 +3,7 @@ import {useT} from '~/lib/ui-strings';
 import type {RootLoader} from '~/root';
 import camelsSvg from '~/assets/camels.svg?url';
 import dunesSvg from '~/assets/dunes.svg?url';
-import logoSvg from '~/assets/chollodesierto.svg?url';
+import logoFallback from '~/assets/chollodesierto.svg?url';
 import sunSvg from '~/assets/sun.svg?url';
 import sunlightSvg from '~/assets/sunlight.svg?url';
 
@@ -64,7 +64,11 @@ export function SiteFooter({
 }: SiteFooterProps) {
   // site_settings comes from the root loader (rendered on every page).
   const root = useRouteLoaderData<RootLoader>('root');
-  const brandName = root?.siteSettings?.brandName || 'Budget Desert Tour';
+  // The logo's alt text: the site name, from brand_name or else the store name.
+  const brandName = root?.siteSettings?.brandName || root?.shopName || 'Chollodesierto';
+  // Uploaded in Admin > Content > Metaobjects > Site Settings. The bundled
+  // SVG is only a fallback, so a store that has not set one still renders.
+  const logoUrl = root?.siteSettings?.logoUrl || logoFallback;
   const tagline =
     root?.siteSettings?.tagline || "Real Sahara.\nFair price.\nStories you'll tell forever.";
 
@@ -148,9 +152,7 @@ export function SiteFooter({
             href={ctaHref}
             className="mt-8 md:mt-10 inline-flex items-center gap-3 rounded-full font-display
                        text-white text-btn px-7 md:px-10 py-3.5 md:py-4
-                       bg-gradient-to-b from-[#cc6533] to-primary
-                       shadow-card-m
-                       transition-transform duration-200 hover:-translate-y-0.5"
+                       btn-primary"
           >
             {t('footer.cta', 'Book Your Adventure Today')}
             <svg
@@ -231,9 +233,9 @@ export function SiteFooter({
         </nav>
 
         <div className="mb-7 md:mb-8 inline-flex flex-col items-center gap-3 text-center sm:flex-row sm:gap-[18px] sm:text-left">
-          <img src={logoSvg} alt={brandName} className="h-10 w-auto shrink-0" />
+          <img src={logoUrl} alt={brandName} className="h-10 w-auto shrink-0" />
           <span aria-hidden="true" className="hidden w-px self-stretch bg-[#e5d6c2]/25 sm:block" />
-          <span className="text-sand text-[0.76rem] whitespace-pre-line">
+          <span className="text-sand text-[0.76rem] text-shadow-slogan whitespace-pre-line">
             {tagline}
           </span>
         </div>

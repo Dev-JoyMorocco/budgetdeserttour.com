@@ -52,13 +52,13 @@ export function Hero({
         <div className="flex flex-wrap gap-3.5 justify-center mb-6">
           <a
             href="/booking"
-            className="font-display text-btn bg-primary text-sand px-8 py-3.5 rounded-full hover:opacity-90 transition-opacity"
+            className="font-display text-btn text-sand px-8 py-3.5 rounded-full btn-primary"
           >
             {t('hero.cta_primary', 'Book Your Adventure →')}
           </a>
           <a
             href="#journey"
-            className="font-display text-btn bg-white/10 text-sand px-8 py-3.5 rounded-full border border-sand/30 hover:bg-white/15 transition-colors"
+            className="font-display text-btn bg-white/10 text-sand px-8 py-3.5 rounded-full border border-sand/30 hover:bg-white/15 btn-smooth"
           >
             {t('hero.cta_secondary', 'Watch the Journey ↓')}
           </a>

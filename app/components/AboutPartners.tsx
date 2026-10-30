@@ -1,5 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {useT} from '~/lib/ui-strings';
+import {Underline} from './Underline';
 
 interface PartnerImage {
   src: string;
@@ -161,7 +162,7 @@ export function AboutPartners({
           <span className="text-label font-bold uppercase text-primary">
             {eyebrow}
           </span>
-          <Squiggle />
+          <Underline />
         </div>
         <h2 className="mb-4 font-display text-[clamp(1.375rem,3.4vw,2.375rem)] text-dark">
           {title}
@@ -204,7 +205,7 @@ export function AboutPartners({
             <p key={i}>{line}</p>
           ))}
           <p aria-hidden="true" className="mt-3 text-2xl">
-            &#128514;&#128076;
+            {t('about.partners_emoji', '\u{1F602}\u{1F44C}')}
           </p>
         </div>
       </div>
@@ -213,18 +214,5 @@ export function AboutPartners({
 }
 
 // ── Sub-components ──────────────────────────────────────────────
-
-function Squiggle() {
-  return (
-    <svg width="52" height="8" viewBox="0 0 52 8" fill="none" aria-hidden="true" className="text-primary">
-      <path
-        d="M1 5.5C6 1.5 11 1.5 16 5.5C21 9.5 26 9.5 31 5.5C36 1.5 41 1.5 46 5.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 export default AboutPartners;
