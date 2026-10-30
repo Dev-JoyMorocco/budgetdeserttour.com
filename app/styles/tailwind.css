@@ -114,9 +114,6 @@ a { text-decoration: none; }
   transition-duration: var(--duration-btn);
   transition-timing-function: var(--ease-btn);
 }
-.btn-primary {
-  box-shadow: var(--shadow-btn);
-}
 .btn-primary:not(:disabled),
 .btn-primary-flat:not(:disabled) {
   cursor: pointer;
