@@ -7,17 +7,14 @@ import {AboutValues} from '~/components/AboutValues';
 import {AboutPartners} from '~/components/AboutPartners';
 import {SiteFooter} from '~/components/SiteFooter';
 import {AboutBookingSupports} from '~/components/AboutBookingSupports';
-import {Partners} from '~/components/Partners';
 import {metaT, useT} from '~/lib/ui-strings';
 import {
   SF_VALUE_PROPS_QUERY,
   SF_SITE_SETTINGS_QUERY,
   SF_PAGE_SECTIONS_QUERY,
-  SF_PARTNERS_QUERY,
   mapValueProps,
   mapSiteSettings,
   mapPageSections,
-  mapPartners,
 } from '~/lib/admin-queries';
 
 export const meta: MetaFunction = ({matches}) => {
@@ -44,11 +41,10 @@ const toAboutIcon = (s: string): AboutIcon =>
 export async function loader({context}: LoaderFunctionArgs) {
   const {storefront} = context;
 
-  const [valuePropsRes, settingsRes, sectionsRes, partnersRes] = await Promise.all([
+  const [valuePropsRes, settingsRes, sectionsRes] = await Promise.all([
     storefront.query(SF_VALUE_PROPS_QUERY).catch(() => null),
     storefront.query(SF_SITE_SETTINGS_QUERY).catch(() => null),
     storefront.query(SF_PAGE_SECTIONS_QUERY).catch(() => null),
-    storefront.query(SF_PARTNERS_QUERY).catch(() => null),
   ]);
 
   const sections = mapPageSections(sectionsRes);
@@ -72,8 +68,6 @@ export async function loader({context}: LoaderFunctionArgs) {
     partnersCopy: sections['about.partners'] ?? null,
     supports: sections['about.supports'] ?? null,
     valuesCopy: sections['about.values'] ?? null,
-    networkCopy: sections['about.network'] ?? null,
-    partners: mapPartners(partnersRes),
     ratingLabel: settings?.ratingCountLabel ?? '',
     ratingValue: settings?.ratingValue ?? '',
   };
@@ -88,8 +82,6 @@ export default function AboutPage() {
     partnersCopy,
     supports,
     valuesCopy,
-    networkCopy,
-    partners,
     ratingValue,
     ratingLabel,
   } = useLoaderData<typeof loader>();
@@ -149,13 +141,6 @@ export default function AboutPage() {
               ? partnersCopy.images.map((i) => ({src: i.url, alt: i.alt}))
               : undefined
           }
-        />
-        {/* The named partner list, driven by the `partner` metaobjects. */}
-        <Partners
-          eyebrow={networkCopy?.eyebrow || undefined}
-          headline={networkCopy?.heading || undefined}
-          subtext={networkCopy?.subheading[0] || undefined}
-          partners={partners.length ? partners : undefined}
         />
         <AboutValues
           eyebrow={valuesCopy?.eyebrow || undefined}

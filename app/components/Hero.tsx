@@ -1,4 +1,5 @@
 import {useT} from '~/lib/ui-strings';
+import camelsSvg from '~/assets/camels.svg?url';
 import dunesSvg from '~/assets/dunes.svg?url';
 import sunSvg from '~/assets/sun.svg?url';
 import sunlightSvg from '~/assets/sunlight.svg?url';
@@ -38,6 +39,14 @@ export function Hero({
       <div aria-hidden="true" className="absolute inset-x-0 bottom-0 z-10 pointer-events-none">
         <img src={dunesSvg} alt="" className="w-full h-60 lg:h-42 object-cover object-bottom" />
       </div>
+
+      {/* Camel caravan, on the front dune */}
+      <img
+        src={camelsSvg}
+        alt=""
+        aria-hidden="true"
+        className="absolute bottom-10 lg:bottom-8 left-1/2 z-12 h-auto w-[clamp(120px,11vw,180px)] -translate-x-1/2 pointer-events-none"
+      />
 
       {/* Content — above all layers */}
       <div className="relative z-20 w-full flex flex-col items-center text-center py-28 px-4">

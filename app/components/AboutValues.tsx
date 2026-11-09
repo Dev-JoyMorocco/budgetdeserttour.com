@@ -5,6 +5,8 @@ type ValueIcon = 'minibus' | 'landscape' | 'card' | 'heart';
 
 interface ValueItem {
   icon: ValueIcon;
+  /** Uploaded in Admin (Value Prop › Icon image). Replaces the built-in icon. */
+  iconUrl?: string;
   title: string;
   body: string;
 }
@@ -65,7 +67,7 @@ export function AboutValues({
         {/* Heading */}
         <div className="mb-13 text-center">
           <div className="mb-4 inline-flex flex-col items-center gap-1.5">
-            <span className="text-label font-bold uppercase tracking-[0.22em] text-primary">
+            <span className="text-label font-bold uppercase text-primary">
               {eyebrow || t('about.values_eyebrow', 'Our Values')}
             </span>
             <Underline />
@@ -85,7 +87,11 @@ export function AboutValues({
               <span
                 className={`flex h-18 w-18 shrink-0 items-center justify-center rounded-full bg-[#F1E4D0] text-primary`}
               >
-                <ValueGlyph icon={v.icon} />
+                {v.iconUrl ? (
+                  <img src={v.iconUrl} alt="" aria-hidden="true" className="h-7 w-7 object-contain" />
+                ) : (
+                  <ValueGlyph icon={v.icon} />
+                )}
               </span>
               <div>
                 <h3 className="mb-2 font-display text-btn text-dark">{v.title}</h3>

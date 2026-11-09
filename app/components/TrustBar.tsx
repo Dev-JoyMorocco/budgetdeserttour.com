@@ -62,8 +62,8 @@ export function TrustBar({
 
       <div className="container max-w-content relative z-10 pb-14">
 
-        {/* ── Video card ── */}
-        <div className="relative w-full aspect-video overflow-hidden rounded-card bg-black">
+        {/* ── Video card ── the hero's "Watch the Journey" button scrolls here. */}
+        <div id="journey" className="relative w-full aspect-video scroll-mt-8 overflow-hidden rounded-card bg-black">
           <video
             ref={videoRef}
             src={videoUrl}

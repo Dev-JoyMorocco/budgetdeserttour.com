@@ -90,6 +90,8 @@ export async function loader({context, params}: LoaderFunctionArgs) {
       author: (a.authorV2?.name as string) ?? '',
       image: (a.image?.url as string) ?? '',
       imageAlt: (a.image?.altText as string) ?? '',
+      heroImage: (a.heroImage?.reference?.image?.url as string) ?? '',
+      heroImageAlt: (a.heroImage?.reference?.image?.altText as string) ?? '',
       seoTitle: (a.seo?.title as string) ?? '',
       seoDescription: (a.seo?.description as string) ?? '',
     },
@@ -120,8 +122,14 @@ export default function BlogPost() {
       <SiteNavbar />
       <main id="main-content">
         <BlogArticle
+          // The post's own hero image; posts without one share the
+          // page_section `blog.post` image.
           heroImage={
-            section?.image ? {src: section.image.url, alt: section.image.alt} : undefined
+            article.heroImage
+              ? {src: article.heroImage, alt: article.heroImageAlt}
+              : section?.image
+                ? {src: section.image.url, alt: section.image.alt}
+                : undefined
           }
           title={article.title}
           date={shortDate(article.dateParts)}

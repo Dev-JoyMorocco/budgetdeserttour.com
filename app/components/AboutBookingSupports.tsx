@@ -1,3 +1,4 @@
+import {Fragment} from 'react';
 import {useT} from '~/lib/ui-strings';
 import {Underline} from './Underline';
 
@@ -13,7 +14,8 @@ export interface AboutBookingSupportsProps {
   title?: string;
   /** Tall portrait image on the left. */
   image?: SupportImage;
-  /** Body paragraphs. The first is styled as a lead-in. */
+  /** Body paragraphs. The first is styled as a lead-in. Wrap words in
+   *  **double asterisks** to bold them. */
   paragraphs?: string[];
   /** Closing statement lines, rendered centered. */
   statement?: string[];
@@ -21,10 +23,10 @@ export interface AboutBookingSupportsProps {
 
 const DEFAULT_PARAGRAPHS = [
   'When you book with us, your money does two things:',
-  'First, it supports the Berber families we partner with in the dunes. The cooks who make your tagine. The musicians who drum by the fire. The hosts who keep the camp running. These aren’t employees of a hotel chain — they’re independent families, and we work with them as equals. Fair rates. Long-term partnerships. On-time payments.',
-  'Second, it supports our small team here in Marrakech. The drivers who get you safely across the Atlas. Our office staff. The people who answer your WhatsApp messages at midnight when you’re stressed about whether to pack a jacket.',
+  '**First**, it supports the Berber families we partner with in the dunes. The cooks who make your tagine. The musicians who drum by the fire. The hosts who keep the camp running. These aren’t employees of a hotel chain — they’re independent families, and we work with them as equals. Fair rates. Long-term partnerships. On-time payments.',
+  '**Second**, it supports our small team here in Marrakech. The drivers who get you safely across the Atlas. Our office staff. The people who answer your WhatsApp messages at midnight when you’re stressed about whether to pack a jacket.',
   'No corporate owners skimming a cut to a Paris boardroom. No investors expecting 30% margins. Just two groups of Moroccans — one in the desert, one in the city — making a real living by sharing what we love about this country.',
-  'That’s what “local” means to us.',
+  'That’s what “**local**” means to us.',
 ];
 
 const DEFAULT_IMAGE: SupportImage = {
@@ -54,39 +56,39 @@ export function AboutBookingSupports({
       <div className="container mx-auto max-w-content px-8">
         <div className="grid grid-cols-1 items-stretch gap-16 md:grid-cols-2">
           {/* Tall portrait image — tracks the copy column height on desktop */}
-          <figure className="aspect-[5/7] overflow-hidden rounded-card shadow-card-hover md:aspect-auto md:min-h-[34rem] md:-mt-60 shadow-card-m">
+          <figure className="aspect-5/7 overflow-hidden rounded-card shadow-card-hover md:aspect-auto md:min-h-136 md:-mt-60 shadow-card-m">
             <img src={image.src} alt={image.alt} className="h-full w-full object-cover" loading="lazy" />
           </figure>
 
           {/* Copy */}
           <div>
-            <div className="mb-9 text-center">
+            <div className="mb-11 text-center">
               <div className="mb-[0.9rem] inline-flex flex-col items-center gap-1.5">
-                <span className="text-label font-bold uppercase tracking-[0.22em] text-primary">
+                <span className="text-label font-bold uppercase text-primary">
                   {eyebrow}
                 </span>
                 <Underline />
               </div>
-              <h2 className="whitespace-pre-line font-display text-h2 leading-tight text-dark">
+              <h2 className="whitespace-pre-line font-display text-h2 leading-snug text-dark">
                 {title}
               </h2>
             </div>
 
-            <div className="flex flex-col gap-[1.1rem] text-base leading-relaxed text-dark/80">
+            <div className="flex flex-col gap-3 text-justify hyphens-auto text-base leading-snug text-dark/80">
               {paragraphs.map((text, i) => (
                 // The first paragraph is the lead-in, so it carries more weight.
-                <p key={i} className={i === 0 ? 'font-semibold text-dark' : undefined}>
-                  {text}
+                <p key={i} className={i === 0 ? 'font-bold' : undefined}>
+                  {withBold(text)}
                 </p>
               ))}
             </div>
 
-            <div className="mt-10 text-center font-display text-[1.05rem] font-semibold leading-[1.65] text-dark">
+            <div className="mt-12 text-center text-base font-bold leading-relaxed text-dark">
               {statement.map((line, i) => (
                 <p key={i}>{line}</p>
               ))}
-              <p aria-hidden="true" className="mt-2 text-[1.4rem]">
-                {t('about.supports_emoji', '\u{270C}\u{1F9E1}')}
+              <p aria-hidden="true" className="mt-3 text-[1.5rem]">
+                {t('about.supports_emoji', '\u{270C}\u{1F3FB}\u{1F60D}')}
               </p>
             </div>
           </div>
@@ -97,5 +99,12 @@ export function AboutBookingSupports({
 }
 
 // ── Sub-components ──────────────────────────────────────────────
+
+/** Renders **word** as bold, so the copy can stay plain text in Shopify. */
+function withBold(text: string) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    i % 2 ? <strong key={i}>{part}</strong> : <Fragment key={i}>{part}</Fragment>,
+  );
+}
 
 export default AboutBookingSupports;

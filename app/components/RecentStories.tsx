@@ -39,7 +39,7 @@ export function RecentStories({
   return (
     <section
       aria-label={t('aria.post.recent', 'Recent stories')}
-      className="bg-linear-to-b from-white to-sand pb-27.5 pt-30 font-body"
+      className="bg-linear-to-b from-white to-sand pb-27.5 pt-section font-body"
     >
       <div className="mx-auto max-w-316 px-6">
         <div className="mb-18 text-center">
@@ -49,10 +49,10 @@ export function RecentStories({
             </span>
             <Underline />
           </div>
-          <h2 className="mb-3 font-display text-[clamp(1.75rem,3.4vw,38px)] font-bold leading-tight text-dark md:leading-[46px]">
+          <h2 className="mb-3 font-display text-[clamp(1.75rem,3.4vw,38px)] font-bold leading-tight text-dark md:leading-11,5">
             {title || t('post.recent_heading', 'From the Sahara')}
           </h2>
-          <p className="mx-auto max-w-75 text-base leading-[22px] text-dark/80">
+          <p className="mx-auto max-w-75 text-base leading-5.5 text-dark/80">
             {subtitle ||
               t(
                 'post.recent_subtitle',
@@ -70,7 +70,7 @@ export function RecentStories({
         <div className="mt-16 flex justify-center">
           <Link
             to={ctaHref}
-            className="inline-flex h-13 items-center gap-1.5 rounded-full px-9 font-display text-[18px] font-bold btn-light"
+            className="inline-flex h-13 items-center gap-1.5 rounded-full px-9 font-display text-btn font-bold btn-light"
           >
             {ctaLabel || t('post.see_all', 'See All Stories')}{' '}
             <span aria-hidden="true">&rarr;</span>
@@ -88,7 +88,7 @@ function StoryCard({story}: {story: Story}) {
   return (
     <Link
       to={story.href}
-      className="group flex h-105 flex-col overflow-hidden rounded-2xl bg-white shadow-card-m transition-transform duration-200 hover:-translate-y-1 md:col-span-4"
+      className="group flex h-105 flex-col overflow-hidden rounded-2xl bg-white shadow-card-m duration-200 md:col-span-4"
     >
       <div className="relative h-72.5 flex-none">
         {/* Scrim so the category label stays readable over a bright photo. */}
@@ -117,8 +117,8 @@ function StoryCard({story}: {story: Story}) {
           </span>
         )}
       </div>
-      <div className="relative -mt-4 flex flex-1 flex-col items-center justify-center rounded-t-2xl bg-white px-6 py-4 text-center">
-        <h3 className="mb-5 max-w-65 text-[20px] font-semibold leading-6 text-dark">
+      <div className="relative -mt-4 flex z-1 flex-1 flex-col items-center justify-center rounded-t-2xl bg-white px-6 py-4 text-center">
+        <h3 className="mb-5 max-w-65 text-h3 font-semibold leading-6 text-dark">
           {story.title}
         </h3>
         {meta && <p className="text-xs font-medium text-dark/70">{meta}</p>}

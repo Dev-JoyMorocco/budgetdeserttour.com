@@ -71,7 +71,20 @@ export const SF_CHECKLIST_QUERY = `
 export const SF_VALUE_PROPS_QUERY = `
   query AdminValueProps {
     metaobjects(type: "value_prop", first: 50) {
-      nodes { id handle fields { key value } }
+      nodes {
+        id
+        handle
+        fields {
+          key
+          value
+          # icon_image: an uploaded icon that replaces the built-in one. SVGs
+          # come back as GenericFile, PNGs as MediaImage.
+          reference {
+            ... on MediaImage { image { url altText } }
+            ... on GenericFile { url }
+          }
+        }
+      }
     }
   }
 `;
@@ -80,22 +93,6 @@ export const SF_COMPARISON_QUERY = `
   query AdminComparison {
     metaobjects(type: "comparison_row", first: 20) {
       nodes { id handle fields { key value } }
-    }
-  }
-`;
-
-export const SF_PARTNERS_QUERY = `
-  query AdminPartners {
-    metaobjects(type: "partner", first: 20) {
-      nodes {
-        id
-        handle
-        fields {
-          key
-          value
-          reference { ... on MediaImage { image { url altText } } }
-        }
-      }
     }
   }
 `;
@@ -474,6 +471,7 @@ export function mapValueProps(data: unknown, group: 'trust' | 'about_values') {
         const fields: MetaField[] = node.fields;
         return {
           icon: f(fields, 'icon'),
+          iconUrl: fFileUrl(fields, 'icon_image'),
           title: f(fields, 'title'),
           body: f(fields, 'body'),
           group: f(fields, 'group'),
@@ -493,24 +491,6 @@ export function mapComparisonRows(data: unknown) {
       return {
         usual: f(fields, 'usual'),
         ours: f(fields, 'ours'),
-        _sort: fInt(fields, 'sort_order'),
-      };
-    }),
-  );
-}
-
-// ── partner — Partners {name, description, badge, logo?} ─────────────────────
-
-export function mapPartners(data: unknown) {
-  return bySort(
-    nodesOf(data).map((node) => {
-      const fields: MetaField[] = node.fields;
-      const logo = fImg(fields, 'logo');
-      return {
-        name: f(fields, 'name'),
-        description: f(fields, 'description'),
-        badge: f(fields, 'badge'),
-        logo: logo?.url ?? undefined,
         _sort: fInt(fields, 'sort_order'),
       };
     }),

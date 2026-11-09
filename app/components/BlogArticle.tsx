@@ -8,7 +8,8 @@ interface ArticleImage {
 }
 
 export interface BlogArticleProps {
-  /** Full-bleed hero background. Editable via page_section `blog.post`. */
+  /** Full-bleed hero background: the post's `custom.hero_image` metafield,
+   *  else the page_section `blog.post` image. */
   heroImage?: ArticleImage;
   /** Article headline. Wraps on its own — no manual line breaks needed. */
   title: string;

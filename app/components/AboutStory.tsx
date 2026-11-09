@@ -75,7 +75,7 @@ export function AboutStory({
               {title}
             </h2>
 
-            <div className="flex flex-col gap-[1.15rem] text-label text-dark text-left">
+            <div className="flex flex-col gap-[1.15rem] text-label text-dark text-justify">
               {paragraphs.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
@@ -98,17 +98,20 @@ export function AboutStory({
               </figure>
             </div>
 
-            {/* ── Desktop: overlapping collage ── */}
-            <figure className="hidden md:block absolute right-0 top-0 aspect-video w-120 max-w-full overflow-hidden rounded-card shadow-card-m">
+            {/* ── Desktop: overlapping collage ──
+                Placed from the left so it keeps the same gap to the text: the
+                middle card overlaps the top one by ~45px and the portrait card
+                sticks out ~48px past the top card's right edge. */}
+            <figure className="hidden md:block absolute left-15 top-0 aspect-8/5 w-117 overflow-hidden rounded-card shadow-card-m">
               <img src={kasbah.src} alt={kasbah.alt} className="h-full w-full object-cover" loading="lazy" />
             </figure>
-            <figure className="hidden md:block absolute left-0 top-64 aspect-3/2 w-108 max-w-full overflow-hidden rounded-card shadow-card-m">
+            <figure className="hidden md:block absolute left-0 top-62 aspect-3/2 w-108 overflow-hidden rounded-card shadow-card-m">
               <img src={camel.src} alt={camel.alt} className="h-full w-full object-cover" loading="lazy" />
             </figure>
-            <figure className="hidden md:block absolute right-4 top-106 aspect-5/7 w-52 overflow-hidden rounded-card shadow-card-m">
+            <figure className="hidden md:block absolute left-95 top-100 aspect-2/3 w-49 overflow-hidden rounded-card shadow-card-m">
               <img src={campfire.src} alt={campfire.alt} className="h-full w-full object-cover" loading="lazy" />
             </figure>
-            <span aria-hidden="true" className="hidden md:block absolute right-16 top-80 text-3xl">
+            <span aria-hidden="true" className="hidden md:block absolute left-116 top-82 text-3xl">
               &#128525;
             </span>
           </div>
@@ -127,9 +130,9 @@ export function AboutStory({
           </blockquote>
           <figcaption className="mt-[1.15rem] inline-flex items-center gap-2 text-label text-dark/80">
             <span className="font-semibold">{author}</span>
-            <span aria-hidden="true" className="text-primary">&middot;</span>
-            <span aria-hidden="true" className="inline-block h-2.5 w-2.5 rounded-full bg-[#C1272D]" />
-            <span aria-hidden="true" className="text-primary">&middot;</span>
+            <span aria-hidden="true">&middot;</span>
+            <MoroccoFlag label={t('aria.about.flag', 'Morocco')} />
+            <span aria-hidden="true">&middot;</span>
             <span>{role}</span>
           </figcaption>
         </figure>
@@ -139,5 +142,29 @@ export function AboutStory({
 }
 
 // ── Sub-components ──────────────────────────────────────────────
+
+/** Round Moroccan flag: red field with the green interlaced pentagram, drawn
+ *  as a vector so it stays sharp at any size. */
+function MoroccoFlag({label}: {label: string}) {
+  return (
+    <svg
+      role="img"
+      aria-label={label}
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      className="shrink-0"
+    >
+      <circle cx="12" cy="12" r="12" fill="#C1272D" />
+      <path
+        d="M12 5.2 16.11 17.86 5.34 10.04h13.32L7.89 17.86Z"
+        fill="none"
+        stroke="#006233"
+        strokeWidth="1.5"
+        strokeLinejoin="miter"
+      />
+    </svg>
+  );
+}
 
 export default AboutStory;

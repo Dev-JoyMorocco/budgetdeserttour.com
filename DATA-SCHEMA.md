@@ -45,7 +45,6 @@ storefront token never surfaced as a visible content failure.
 | Testimonials carousel | [Testimonials.tsx:15-22](app/components/Testimonials.tsx#L15-L22) | 6 |
 | General FAQ accordion | [Faq.tsx:8-19](app/components/Faq.tsx#L8-L19) | 10 |
 | Gallery / tribe media | [CapturedByTribe.tsx:20-27](app/components/CapturedByTribe.tsx#L20-L27) | 6 |
-| Partners | [Partners.tsx:1-32](app/components/Partners.tsx#L1-L32) | 6 |
 | About story / values / partners copy | `AboutStory.tsx`, `AboutValues.tsx`, `AboutPartners.tsx` | prose + 4 values + 3 stats + 6 images |
 | Nav, legal, social links | [SiteNavbar.tsx:4-8](app/components/SiteNavbar.tsx#L4-L8), [SiteFooter.tsx:16-36](app/components/SiteFooter.tsx#L16-L36) | 3 + 6 + 3 + 3 |
 | Homepage video + poster | [_index.tsx:63-64](app/routes/_index.tsx#L63-L64) | inline URLs |

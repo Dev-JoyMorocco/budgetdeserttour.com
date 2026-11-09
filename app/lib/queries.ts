@@ -215,6 +215,10 @@ export const BLOG_ARTICLE_QUERY = `#graphql
         image { url altText }
         authorV2 { name }
         seo { title description }
+        # Per-post hero background, set in Admin on the blog post itself.
+        heroImage: metafield(namespace: "custom", key: "hero_image") {
+          reference { ... on MediaImage { image { url altText } } }
+        }
       }
     }
   }
