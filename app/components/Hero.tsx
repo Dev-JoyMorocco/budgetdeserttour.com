@@ -4,6 +4,20 @@ import dunesSvg from '~/assets/dunes.svg?url';
 import sunSvg from '~/assets/sun.svg?url';
 import sunlightSvg from '~/assets/sunlight.svg?url';
 
+/**
+ * Scrolls to the video card in TrustBar. Done here rather than by the plain
+ * #journey link: React Router treats the hash change as a navigation and jumps
+ * there instantly, and a second click on the same hash does nothing. The href
+ * stays as the no-JS fallback.
+ */
+function scrollToJourney(e: React.MouseEvent<HTMLAnchorElement>) {
+  const target = document.getElementById('journey');
+  if (!target) return;
+  e.preventDefault();
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  target.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'start'});
+}
+
 export interface HeroProps {
   /** Rating shown in the social-proof line, e.g. "4.9". */
   ratingValue?: string;
@@ -67,6 +81,7 @@ export function Hero({
           </a>
           <a
             href="#journey"
+            onClick={scrollToJourney}
             className="font-display text-btn bg-white/10 text-sand px-8 py-3.5 rounded-full border border-sand/30 hover:bg-white/15 btn-smooth"
           >
             {t('hero.cta_secondary', 'Watch the Journey ↓')}
