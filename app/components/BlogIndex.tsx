@@ -103,7 +103,7 @@ export function BlogIndex({
                     setActive(c);
                     setShown(pageSize);
                   }}
-                  className={`h-12 rounded-full px-8 font-display text-[18px] font-bold shadow-card-m btn-smooth ${
+                  className={`h-12 rounded-full px-8 font-display text-btn shadow-card-m btn-smooth ${
                     on ? 'bg-primary text-white' : 'bg-white text-dark hover:text-primary'
                   }`}
                 >
@@ -150,7 +150,7 @@ export function BlogIndex({
             <button
               type="button"
               onClick={() => setShown((s) => s + pageSize)}
-              className="h-13 rounded-full px-9 font-display text-[18px] font-bold btn-light"
+              className="h-13 rounded-full px-9 font-display text-btn btn-light"
             >
               {t('blog.load_more', 'Load more')} <span aria-hidden="true">&darr;</span>
             </button>
@@ -168,15 +168,17 @@ function FeaturedCard({post}: {post: BlogPost}) {
   return (
     <Link
       to={post.href}
-      className="grid grid-cols-[40px_minmax(0,1fr)] overflow-hidden rounded-[20px] bg-[#1F1E24] shadow-card-m md:h-105 md:grid-cols-[40px_minmax(0,1fr)_minmax(0,1fr)]"
+      className="grid grid-cols-[52px_minmax(0,1fr)] overflow-hidden rounded-[20px] bg-dark shadow-card-m md:h-105 md:grid-cols-[52px_minmax(0,1fr)_minmax(0,1fr)]"
     >
-      <span className="flex rotate-180 items-center justify-center font-display text-[14px] font-bold text-white [writing-mode:vertical-rl]">
+      {/* The photo overlaps this strip by 20px, so the label is centred in
+          the part that stays visible (rotated, so the padding is on the left). */}
+      <span className="flex rotate-180 items-center justify-center pl-5 font-display text-[14px] text-white [writing-mode:vertical-rl]">
         {t('blog.featured', 'Featured')}
       </span>
       <SafeImage
         src={post.image.src}
         alt={post.image.alt}
-        className="h-full min-h-64 w-full object-cover"
+        className="relative -ml-5 h-full min-h-64 w-[calc(100%+1.25rem)] max-w-none rounded-l-[20px] object-cover"
       />
       <div className="relative col-span-2 flex flex-col items-center justify-center bg-white px-12 py-8 text-center md:col-span-1 md:-ml-5 md:rounded-l-[20px]">
         {post.category && <CategoryTag label={post.category} icon="tag" className="mb-12 text-dark" />}
@@ -185,7 +187,7 @@ function FeaturedCard({post}: {post: BlogPost}) {
           <p className="mb-3 max-w-67.5 text-base leading-[22px] text-dark/80">{post.excerpt}</p>
         )}
         <Meta post={post} className="mb-12" />
-        <span className="font-display text-base font-bold text-primary">
+        <span className="font-display text-base text-primary">
           {t('blog.read_story', 'Read the story')} <span aria-hidden="true">&rarr;</span>
         </span>
       </div>
@@ -261,7 +263,7 @@ function CategoryTag({
   className?: string;
 }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 font-display text-xs font-bold ${className}`}>
+    <span className={`inline-flex items-center gap-1.5 font-display text-xs ${className}`}>
       {icon === 'tag' ? (
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path

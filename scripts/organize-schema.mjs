@@ -263,8 +263,8 @@ const STRINGS = {
   'booking.transfer_oneway': ['One way', 'Transfer — One way', BOOKING, 'Booking form toggle'],
   'booking.transfer_return': ['Return', 'Transfer — Return', BOOKING, 'Booking form toggle'],
   'booking.total_transfer':  ['Total transfer', 'Transfer — Price label', BOOKING, 'Transfer card'],
-  'booking.travelers_word':  ['Travelers', 'Transfer — "Travelers"', BOOKING, 'Transfer card, after the number'],
-  'booking.vehicle_one':     ['1 Vehicle', 'Transfer — Vehicle count', BOOKING, 'Transfer card'],
+  'booking.traveler_word':   ['Traveler', 'Transfer — "Traveler" (one)', BOOKING, 'Transfer card, after the number 1'],
+  'booking.travelers_word':  ['Travelers', 'Transfer — "Travelers"', BOOKING, 'Transfer card, after a number above 1'],
 
   // ── Booking page — summary ──
   'booking.summary_title':   ['Your Trip Summary', 'Summary — Title', BOOKING, 'Booking page sidebar'],
@@ -300,7 +300,7 @@ const STRINGS = {
   'about.stat_rating':       ['Trusted by 3k people', 'About — Statistic 2 caption', ABOUT, 'Falls back to the Site Settings rating label'],
   'about.stat_agency':       ['Local agency', 'About — Statistic 3 caption', ABOUT, 'Under the values cards'],
   'about.supports_emoji':    ['\u{270C}\u{1F3FB}\u{1F60D}', 'About — Supports emoji', ABOUT, 'Decorative, under the "Who your booking supports" statement.'],
-  'about.partners_emoji':    ['\u{1F602}\u{1F44C}', 'About — Partners emoji', ABOUT, 'Decorative, under the partners statement.'],
+  'about.partners_emoji':    ['\u{1F601}\u{1F44D}\u{1F3FB}', 'About — Partners emoji', ABOUT, 'Decorative, under the partners statement.'],
 
   // ── Journal (blog) ──
   'blog.heading':            ['Notes from the desert.', 'Journal — Heading', BLOG, 'Page Section blog.index wins if set'],

@@ -115,7 +115,8 @@ export function AboutPartners({
       if (!down) return;
       down = false;
       paused = false;
-      el.style.cursor = 'grab';
+      // Back to the hand cursor set by the class.
+      el.style.cursor = '';
     };
     const onMove = (e: PointerEvent) => {
       if (!down) return;
@@ -172,7 +173,7 @@ export function AboutPartners({
       {/* Full-bleed partner carousel — trackpad/wheel/touch-swipe + click-drag */}
       <div
         ref={trackRef}
-        className="flex cursor-grab gap-5 overflow-x-auto px-8 pb-4 scrollbar-none"
+        className="flex cursor-pointer gap-5 overflow-x-auto px-8 pb-4 scrollbar-none"
         style={{WebkitOverflowScrolling: 'touch'}}
       >
         {images.map((img, i) => (
@@ -205,7 +206,7 @@ export function AboutPartners({
             <p key={i}>{line}</p>
           ))}
           <p aria-hidden="true" className="mt-3 text-2xl">
-            {t('about.partners_emoji', '\u{1F602}\u{1F44C}')}
+            {t('about.partners_emoji', '\u{1F601}\u{1F44D}\u{1F3FB}')}
           </p>
         </div>
       </div>

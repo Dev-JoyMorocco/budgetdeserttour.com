@@ -1,4 +1,6 @@
 import {metaT} from '~/lib/ui-strings';
+import {isBookableIsoDate} from '~/lib/booking-date';
+import {transferTierFor} from '~/lib/booking-transfer';
 import {data, redirect, useLoaderData} from 'react-router';
 import type {
   ActionFunctionArgs,
@@ -129,6 +131,45 @@ export async function loader({context, request}: LoaderFunctionArgs) {
   };
 }
 
+/**
+ * Returns an error message if the booking's airport-transfer line is not the
+ * variant for its group size (see app/lib/booking-transfer.ts), or null if it
+ * is — or if no transfer was booked.
+ */
+async function checkTransferLine(
+  storefront: ActionFunctionArgs['context']['storefront'],
+  lines: Array<{merchandiseId: string; quantity: number}>,
+): Promise<string | null> {
+  const settings = mapSiteSettings(
+    await storefront.query(SF_SITE_SETTINGS_QUERY).catch(() => null),
+  );
+  const handle = settings?.transferProductHandle || TRANSFER_PRODUCT_FALLBACK;
+  const transfer = mapBookingTransfer(
+    await storefront
+      .query(SF_ADDON_PRODUCT_QUERY, {variables: {handle}})
+      .catch(() => null),
+  );
+
+  const transferIds = new Set(
+    (transfer?.tiers ?? []).flatMap((t) => [t.onewayVariantId, t.returnVariantId]),
+  );
+  const transferLines = lines.filter((l) => transferIds.has(l.merchandiseId));
+  if (!transferLines.length) {
+    // Nothing recognised as a transfer. If the product could not be read at
+    // all, nothing can be checked either, so let the booking through as before.
+    return null;
+  }
+
+  const unavailable = 'The airport transfer price could not be confirmed. Please try again or WhatsApp us.';
+  const [tour] = lines;
+  if (!transfer || transferIds.has(tour.merchandiseId)) return unavailable;
+  if (transferLines.length > 1 || transferLines[0].quantity !== 1) return unavailable;
+
+  const tier = transferTierFor(transfer.tiers, tour.quantity);
+  const allowed = tier ? [tier.onewayVariantId, tier.returnVariantId] : [];
+  return allowed.includes(transferLines[0].merchandiseId) ? null : unavailable;
+}
+
 /** A cart line's booking details, forwarded to Shopify as line item properties. */
 type LineAttribute = {key: string; value: string};
 
@@ -172,7 +213,7 @@ function isCartLine(
 }
 
 export async function action({request, context}: ActionFunctionArgs) {
-  const {cart} = context;
+  const {cart, storefront} = context;
 
   const formData = await request.formData();
 
@@ -196,6 +237,27 @@ export async function action({request, context}: ActionFunctionArgs) {
       {error: 'Something looked off with your booking. Please try again.'},
       {status: 400},
     );
+  }
+
+  // The calendar only offers tomorrow onwards (Morocco time), but the form can
+  // be replayed by hand, so every line's departure date is checked again here.
+  const datesOk = parsed.every((line) => {
+    const date = line.attributes?.find((a) => a.key === '_arrival_date')?.value;
+    return typeof date === 'string' && isBookableIsoDate(date);
+  });
+  if (!datesOk) {
+    return data(
+      {error: 'That date has passed. Please pick a date from tomorrow onwards.'},
+      {status: 400},
+    );
+  }
+
+  // The transfer is priced per group, and checkout charges whichever variant
+  // was sent, so check it is the one for this many travelers. The tour line
+  // comes first and its quantity is the travelers count.
+  const transferError = await checkTransferLine(storefront, parsed);
+  if (transferError) {
+    return data({error: transferError}, {status: 400});
   }
 
   // ── ACTIVE: Storefront cart checkout ─────────────────────────────────────

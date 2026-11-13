@@ -77,7 +77,7 @@ export function TrustBar({
               type="button"
               aria-label={t('aria.trust.play', 'Play excursion video')}
               onClick={handlePlayClick}
-              className="group absolute inset-0 block h-full w-full cursor-pointer"
+              className="group absolute inset-0 block h-full w-full"
             >
               <img
                 src={poster}

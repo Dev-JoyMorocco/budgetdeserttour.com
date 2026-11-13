@@ -273,7 +273,7 @@ export function CapturedByTribe({
           onPointerCancel={endDrag}
           onDragStart={(e) => e.preventDefault()}
           style={{touchAction: 'pan-y'}}
-          className="flex items-center gap-8 py-7 will-change-transform select-none cursor-grab active:cursor-grabbing"
+          className="flex items-center gap-8 py-7 will-change-transform select-none cursor-pointer active:cursor-grabbing"
         >
           {allItems.map((item, i) =>
             item.kind === 'video' ? (

@@ -8,6 +8,13 @@
 // unchanged — only the client differs. The mapTo* mappers in queries.ts are
 // reused as-is for the original four types.
 
+import {
+  transferLeg,
+  transferRange,
+  type TransferConfig,
+  type TransferTier,
+} from '~/lib/booking-transfer';
+
 // ── Queries for types that already have mappers in queries.ts ────────────────
 
 export const SF_TOUR_ROUTES_QUERY = `
@@ -695,25 +702,36 @@ export function mapBookingExtras(data: unknown, eyebrow: string) {
 }
 
 /**
- * Maps the airport-transfer product to the form's transfer config. Needs both
- * a one-way and a return variant; anything else returns null so the caller
- * falls back rather than pricing a leg it couldn't read.
+ * Maps the airport-transfer product to the form's transfer config: one price
+ * row per group size, read from the variant titles ("1-4 travelers / One way").
+ * A row needs both a one-way and a return variant; if no row is complete this
+ * returns null so the caller falls back rather than pricing a leg it couldn't
+ * read.
  */
-export function mapBookingTransfer(data: unknown) {
-  const variants = addonVariants(data).filter((v) => v.availableForSale);
-  const oneway = variants.find((v) => /one\s*way/i.test(v.title));
-  const ret = variants.find((v) => /return/i.test(v.title));
-  if (!oneway || !ret || !oneway.price || !ret.price) return null;
-  const image = oneway.image ?? ret.image;
-  if (!image) return null;
-  return {
-    onewayPrice: oneway.price,
-    returnPrice: ret.price,
-    onewayVariantId: oneway.id,
-    returnVariantId: ret.id,
-    image: image.url,
-    imageAlt: image.alt,
-  };
+export function mapBookingTransfer(data: unknown): TransferConfig | null {
+  const variants = addonVariants(data).filter((v) => v.availableForSale && v.price > 0);
+  const rows = new Map<string, Partial<TransferTier> & {min: number; max: number}>();
+  for (const v of variants) {
+    const leg = transferLeg(v.title);
+    if (!leg) continue;
+    const {min, max} = transferRange(v.title);
+    const key = `${min}-${max}`;
+    const row = rows.get(key) ?? {min, max};
+    if (leg === 'oneway') {
+      row.onewayPrice = v.price;
+      row.onewayVariantId = v.id;
+    } else {
+      row.returnPrice = v.price;
+      row.returnVariantId = v.id;
+    }
+    rows.set(key, row);
+  }
+  const tiers = [...rows.values()]
+    .filter((r): r is TransferTier => Boolean(r.onewayVariantId && r.returnVariantId))
+    .sort((a, b) => a.min - b.min);
+  const image = variants.find((v) => v.image)?.image;
+  if (!tiers.length || !image) return null;
+  return {tiers, image: image.url, imageAlt: image.alt};
 }
 
 /** Reads the store name (Admin > Settings > General) out of a SF_SITE_SETTINGS_QUERY result. */

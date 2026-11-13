@@ -1,5 +1,7 @@
 import {useMemo, useState} from 'react';
 import {useT} from '~/lib/ui-strings';
+import {moroccoTomorrow, toIsoDate} from '~/lib/booking-date';
+import {transferTierFor, type TransferConfig} from '~/lib/booking-transfer';
 import {useFetcher} from 'react-router';
 
 // ── Types (exported — loader maps Shopify metaobjects to these shapes) ──────
@@ -35,14 +37,7 @@ export interface ExtraOption {
   defaultQty?: number;
 }
 
-export interface TransferConfig {
-  onewayPrice: number;
-  returnPrice: number;
-  onewayVariantId: string;
-  returnVariantId: string;
-  image: string;
-  imageAlt: string;
-}
+export type {TransferConfig} from '~/lib/booking-transfer';
 
 // ── Defaults (static fallback until Shopify metaobjects are wired) ──────────
 
@@ -130,11 +125,21 @@ export const DEFAULT_EXTRAS: ExtraOption[] = [
   },
 ];
 
+// Only used if the transfer product can't be read. Prices are a total for the
+// group; the live prices and variants come from the product in Shopify.
+const LEGACY_ONEWAY_VARIANT = 'gid://shopify/ProductVariant/43295619383394';
+const LEGACY_RETURN_VARIANT = 'gid://shopify/ProductVariant/43295619416162';
+
 export const DEFAULT_TRANSFER: TransferConfig = {
-  onewayPrice: 25,
-  returnPrice: 45,
-  onewayVariantId: 'gid://shopify/ProductVariant/43295619383394',
-  returnVariantId: 'gid://shopify/ProductVariant/43295619416162',
+  tiers: [
+    {min: 1, max: 4, onewayPrice: 14, returnPrice: 28},
+    {min: 5, max: 7, onewayPrice: 19, returnPrice: 38},
+    {min: 8, max: 17, onewayPrice: 35, returnPrice: 70},
+  ].map((tier) => ({
+    ...tier,
+    onewayVariantId: LEGACY_ONEWAY_VARIANT,
+    returnVariantId: LEGACY_RETURN_VARIANT,
+  })),
   image:
     'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=300&q=80',
   imageAlt: 'Private airport transfer vehicle',
@@ -259,6 +264,8 @@ interface DayCell {
   isStart: boolean;
   isEnd: boolean;
   inRange: boolean;
+  /** Today or earlier in Morocco — shown but not selectable. */
+  past: boolean;
 }
 
 function sameDay(a: Date | null, b: Date | null) {
@@ -271,50 +278,22 @@ function sameDay(a: Date | null, b: Date | null) {
   );
 }
 
-/**
- * `YYYY-MM-DD` from the date's own calendar day.
- *
- * Not `toISOString()`: that converts to UTC first, so a date picked in the
- * evening west of Greenwich — or any evening in a positive-offset zone — can
- * come out as the day before. The booking backend takes this literally.
- */
-function toIsoDate(d: Date): string {
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${month}-${day}`;
-}
-
 function addDays(d: Date, n: number) {
   const copy = new Date(d);
   copy.setDate(copy.getDate() + n);
   return copy;
 }
 
-/** "Today" for bookings is Morocco's today, whatever the server or visitor clock says. */
-const BOOKING_TIME_ZONE = 'Africa/Casablanca';
-
-/**
- * Tomorrow's calendar day in Morocco, as a local-midnight Date — the shape
- * buildMonthCells and toIsoDate work with. The Date constructor rolls the
- * day over month and year ends (31 Oct → 1 Nov, 31 Dec → 1 Jan).
- */
-function moroccoTomorrow(now = new Date()): Date {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: BOOKING_TIME_ZONE,
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  }).formatToParts(now);
-  const part = (type: 'year' | 'month' | 'day') =>
-    Number(parts.find((p) => p.type === type)?.value);
-  return new Date(part('year'), part('month') - 1, part('day') + 1);
-}
+/** Travelers counter bounds — a booking always has at least one person. */
+const MIN_TRAVELERS = 1;
+const MAX_TRAVELERS = 17;
 
 function buildMonthCells(
   year: number,
   monthIndex: number,
   departDate: Date,
   returnDate: Date,
+  firstBookable: Date,
 ): DayCell[] {
   const first = new Date(year, monthIndex, 1);
   const startWeekday = (first.getDay() + 6) % 7;
@@ -328,6 +307,7 @@ function buildMonthCells(
       isStart: false,
       isEnd: false,
       inRange: false,
+      past: false,
     });
   }
   for (let d = 1; d <= daysInMonth; d++) {
@@ -339,6 +319,7 @@ function buildMonthCells(
       isStart: sameDay(date, departDate),
       isEnd: sameDay(date, returnDate),
       inRange: date > departDate && date < returnDate,
+      past: date < firstBookable,
     });
   }
   return cells;
@@ -420,7 +401,7 @@ export function BookingBody({
     month: departDate.getMonth(),
   }));
   // Defaults to a single traveler; the shopper adjusts from there.
-  const [travelers, setTravelers] = useState(1);
+  const [travelers, setTravelers] = useState(MIN_TRAVELERS);
   const [extraQtys, setExtraQtys] = useState<Record<string, number>>(() =>
     Object.fromEntries(extras.map((e) => [e.id, e.defaultQty ?? 0])),
   );
@@ -437,6 +418,15 @@ export function BookingBody({
   const selectedRoute = routes.find((r) => r.id === routeId) ?? routes[0];
   const selectedCamp = camps.find((c) => c.id === campId) ?? camps[0];
 
+  // The first day that can be booked: tomorrow in Morocco. Recomputed each
+  // render so a page left open past midnight closes the day that just began.
+  const firstBookable = moroccoTomorrow();
+  const firstBookableKey = toIsoDate(firstBookable);
+  // The left pane may not go back past the first bookable day's month.
+  const leftPaneMonth = monthBaseYear * 12 + monthBaseIndex + monthOffset;
+  const canGoBack =
+    leftPaneMonth > firstBookable.getFullYear() * 12 + firstBookable.getMonth();
+
   const months = useMemo(() => {
     return [0, 1].map((offsetFromBase) => {
       const total = monthBaseIndex + monthOffset + offsetFromBase;
@@ -444,14 +434,26 @@ export function BookingBody({
       const monthIndex = ((total % 12) + 12) % 12;
       return {
         label: `${monthNames[monthIndex]} ${year}`,
-        cells: buildMonthCells(year, monthIndex, departDate, returnDate),
+        cells: buildMonthCells(year, monthIndex, departDate, returnDate, firstBookable),
       };
     });
-  }, [monthOffset, departDate, returnDate, monthNames]);
+    // firstBookableKey stands in for firstBookable, a new Date every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthOffset, departDate, returnDate, monthNames, firstBookableKey]);
 
+  // The transfer is priced per group: the row for this many travelers. Past the
+  // last row (a misconfigured product) the largest group's price applies; the
+  // server refuses that booking rather than charging the wrong amount.
+  const transferTier =
+    transferTierFor(transfer.tiers, travelers) ?? transfer.tiers[transfer.tiers.length - 1];
   const transferPrice =
-    transferType === 'oneway' ? transfer.onewayPrice : transfer.returnPrice;
+    transferType === 'oneway' ? transferTier.onewayPrice : transferTier.returnPrice;
   const transferTypeLabel = transferType === 'oneway' ? 'One way' : 'Return';
+  // "1 Traveler" / "2 Travelers" on the transfer cards.
+  const transferTravelersWord =
+    travelers === 1
+      ? t('booking.traveler_word', 'Traveler')
+      : t('booking.travelers_word', 'Travelers');
 
   const total =
     selectedRoute.price * travelers +
@@ -510,6 +512,13 @@ export function BookingBody({
       return;
     }
 
+    if (departDate < moroccoTomorrow()) {
+      setValidationError(
+        t('booking.date_past', 'That date has passed. Please pick a date from tomorrow onwards.'),
+      );
+      return;
+    }
+
     if (travelers < 1) {
       setValidationError(
         t('booking.travelers_required', 'Please choose how many travelers are coming.'),
@@ -560,8 +569,8 @@ export function BookingBody({
     if (transferEnabled) {
       const transferVariantId =
         transferType === 'oneway'
-          ? transfer.onewayVariantId
-          : transfer.returnVariantId;
+          ? transferTier.onewayVariantId
+          : transferTier.returnVariantId;
       lines.push({merchandiseId: transferVariantId, quantity: 1, attributes});
     }
 
@@ -713,7 +722,8 @@ export function BookingBody({
                         <button
                           type="button"
                           aria-label={t('booking.aria_prev_month', 'Previous month')}
-                          onClick={() => setMonthOffset((o) => o - 1)}
+                          onClick={() => canGoBack && setMonthOffset((o) => o - 1)}
+                          disabled={!canGoBack}
                           className="flex size-8 items-center justify-center rounded-full border border-dark/15 btn-dark"
                         >
                           &lsaquo;
@@ -745,7 +755,7 @@ export function BookingBody({
                           <button
                             key={ci}
                             type="button"
-                            disabled={cell.blank}
+                            disabled={cell.blank || cell.past}
                             onClick={() => cell.date && pickDate(cell.date)}
                             data-state={
                               cell.isStart || cell.isEnd ? 'edge' : cell.inRange ? 'range' : undefined
@@ -782,7 +792,8 @@ export function BookingBody({
                 <button
                   type="button"
                   aria-label={t('booking.aria_decrease_travelers', 'Decrease travelers')}
-                  onClick={() => setTravelers((t) => Math.max(0, t - 1))}
+                  onClick={() => setTravelers((t) => Math.max(MIN_TRAVELERS, t - 1))}
+                  disabled={travelers <= MIN_TRAVELERS}
                   className="flex h-14 w-14 items-center justify-center rounded-full text-4xl btn-light"
                 >
                   &minus;
@@ -793,7 +804,8 @@ export function BookingBody({
                 <button
                   type="button"
                   aria-label={t('booking.aria_increase_travelers', 'Increase travelers')}
-                  onClick={() => setTravelers((t) => Math.min(17, t + 1))}
+                  onClick={() => setTravelers((t) => Math.min(MAX_TRAVELERS, t + 1))}
+                  disabled={travelers >= MAX_TRAVELERS}
                   className="flex h-14 w-14 items-center justify-center rounded-full text-4xl btn-light"
                 >
                   +
@@ -876,10 +888,7 @@ export function BookingBody({
                       <div className="shrink-0 self-stretch border-l border-dashed border-primary" />
                       <div className="flex shrink-0 flex-col justify-center gap-px px-4 font-bold text-left">
                         <span className="text-xs text-dark">
-                          {travelers} {t('booking.travelers_word', 'Travelers')}
-                        </span>
-                        <span className="text-xs text-dark">
-                          {t('booking.vehicle_one', '1 Vehicle')}
+                          {travelers} {transferTravelersWord}
                         </span>
                         <span className="text-xs text-dark">
                           {transferTypeLabel}
@@ -1008,7 +1017,7 @@ export function BookingBody({
                       {t('booking.summary_transfer', 'Airport transfer')}
                     </p>
                     <p className="text-price font-display text-forest">
-                      1 x €{transferPrice}
+                      €{transferPrice}
                     </p>
                   </div>
                   <div className="flex h-22 items-stretch overflow-hidden rounded-card bg-white border border-sand mb-6">
@@ -1024,10 +1033,7 @@ export function BookingBody({
                       <div className="shrink-0 self-stretch border-l border-dashed border-primary" />
                       <div className="flex shrink-0 flex-col justify-center gap-px px-4 font-bold text-left">
                         <span className="text-xs text-dark">
-                          {travelers} {t('booking.travelers_word', 'Travelers')}
-                        </span>
-                        <span className="text-xs text-dark">
-                          {t('booking.vehicle_one', '1 Vehicle')}
+                          {travelers} {transferTravelersWord}
                         </span>
                         <span className="text-xs text-dark">
                           {transferTypeLabel}
@@ -1076,7 +1082,7 @@ export function BookingBody({
                 type="button"
                 onClick={handleReserve}
                 disabled={isReserving}
-                className="group flex w-full cursor-pointer items-center rounded-full bg-white p-1 text-btn text-forest shadow-card-m disabled:cursor-not-allowed disabled:opacity-70"
+                className="group flex w-full items-center rounded-full bg-white p-1 text-btn text-forest shadow-card-m disabled:opacity-70"
               >
                 <span className="py-3 px-6 rounded-full text-white font-display bg-amber-500 group-hover:bg-amber-600 group-disabled:bg-amber-600 btn-smooth">
                   {isReserving ? (
@@ -1189,7 +1195,7 @@ export function BookingBody({
                         type="button"
                         onClick={() => setOpenFaq(open ? -1 : i)}
                         aria-expanded={open}
-                        className="relative w-full cursor-pointer rounded-full bg-white py-5 pl-6 pr-14 text-left shadow-card-m"
+                        className="relative w-full rounded-full bg-white py-5 pl-6 pr-14 text-left shadow-card-m"
                       >
                         <span className="text-h3 font-bold text-dark">
                           {faq.question}

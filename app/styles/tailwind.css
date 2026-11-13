@@ -75,6 +75,28 @@
   html {
     font-size: clamp(0.875rem, 0.5rem + 1.1vw, 1rem);
   }
+
+  /* Hand cursor on everything clickable — the one place this is set. In the
+     base layer so a utility such as cursor-grab can still override it. */
+  a,
+  button,
+  [role='button'],
+  label[for],
+  summary,
+  select,
+  input[type='submit'],
+  input[type='button'],
+  input[type='reset'],
+  input[type='checkbox'],
+  input[type='radio'] {
+    cursor: pointer;
+  }
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -117,10 +139,6 @@ a { text-decoration: none; }
 .btn-primary {
   box-shadow: var(--shadow-btn);
 }
-.btn-primary:not(:disabled),
-.btn-primary-flat:not(:disabled) {
-  cursor: pointer;
-}
 @media (hover: hover) {
   .btn-primary:hover:not(:disabled),
   .group:hover:not(:disabled) .btn-hover-target {
@@ -139,7 +157,6 @@ a { text-decoration: none; }
 .btn-day,
 .btn-segment,
 .btn-card {
-  cursor: pointer;
   transition-property: background-color, box-shadow, border-color, color;
   transition-duration: var(--duration-btn);
   transition-timing-function: var(--ease-btn);
@@ -148,6 +165,10 @@ a { text-decoration: none; }
   background-color: #fff;
   color: var(--color-primary);
   box-shadow: var(--shadow-card);
+}
+.btn-light:disabled {               /* stepper at its min/max */
+  opacity: 0.4;
+  box-shadow: 0 0 0 transparent;
 }
 .btn-dark {                         /* calendar month arrows */
   background-color: var(--color-dark);
@@ -167,6 +188,12 @@ a { text-decoration: none; }
   background-color: var(--color-primary);
   color: #fff;
 }
+.btn-day:disabled {                 /* today and past days */
+  color: rgb(26 31 46 / 0.25);
+}
+.btn-dark:disabled {                /* month arrow at the first bookable month */
+  opacity: 0.3;
+}
 .btn-segment {                      /* Yes/No, One way/Return */
   background-color: transparent;
   color: var(--color-dark);
@@ -185,8 +212,8 @@ a { text-decoration: none; }
   background-color: var(--color-primary);
 }
 @media (hover: hover) {
-  .btn-light:hover,
-  .btn-dark:hover,
+  .btn-light:hover:not(:disabled),
+  .btn-dark:hover:not(:disabled),
   .btn-day:hover:not(:disabled),
   .btn-segment:hover {
     background-color: var(--color-primary-hover);
@@ -214,7 +241,6 @@ a { text-decoration: none; }
   background-color: var(--color-whatsapp);
   box-shadow: var(--shadow-whatsapp);
   color: #fff;
-  cursor: pointer;
   transition-property: background-color, box-shadow;
   transition-duration: var(--duration-btn);
   transition-timing-function: var(--ease-btn);
@@ -226,7 +252,6 @@ a { text-decoration: none; }
   }
 }
 .btn-whatsapp[aria-disabled='true'] {
-  cursor: not-allowed;
   opacity: 0.5;
 }
 
@@ -369,7 +394,7 @@ a { text-decoration: none; }
   transform-origin: 50% 85%;
   transform: translateX(0) rotate(0deg);
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  cursor: grab;
+  cursor: pointer;
 }
 .carousel-wrap[data-phase="drag"] .carousel-card {
   transform: translateX(var(--dx, 0)) rotate(var(--dr, 0deg));
@@ -458,7 +483,7 @@ a { text-decoration: none; }
 }
 .sf-camel {
   bottom: 3.75rem;
-  width: clamp(170px, 24vw, 272px);
+  width: clamp(120px, 11vw, 180px);
 }
 
 
@@ -472,22 +497,23 @@ a { text-decoration: none; }
    rhythm without pulling in a typography plugin. */
 .article-body > * + * { margin-top: 0.75rem; }
 .article-body h2 {
-  font-family: var(--font-display, inherit);
-  font-size: 2.375rem;
-  line-height: 2.875rem;
-  font-weight: 700;
+  /* Patua One ships in one weight, like every other heading on the site. */
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  line-height: 1.2;
+  font-weight: 400;
   margin-top: 0;
   margin-bottom: 1.375rem;
-  color: #1A1F2E;
+  color: var(--color-dark);
 }
 .article-body * + h2 { margin-top: 2.5rem; }
 .article-body h3 {
-  font-size: 1.25rem;
+  font-size: var(--text-h3);
   line-height: 1.625rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 2.125rem;
   margin-bottom: 0.625rem;
-  color: #1A1F2E;
+  color: var(--color-dark);
 }
 /* Justified with hyphenation, matching the post design. Left-aligned on narrow
    screens, where justification opens ugly rivers between words. */
@@ -495,19 +521,27 @@ a { text-decoration: none; }
 @media (max-width: 40rem) {
   .article-body p { text-align: left; hyphens: manual; }
 }
-.article-body a { color: #C45A2C; text-decoration: none; text-underline-offset: 2px; }
-.article-body a:hover { text-decoration: underline; }
-.article-body strong { color: #1A1F2E; font-weight: 600; }
+.article-body a {
+  color: var(--color-primary);
+  text-decoration: none;
+  text-underline-offset: 2px;
+  transition: color var(--duration-btn) var(--ease-btn);
+}
+.article-body a:hover { color: var(--color-primary-hover); text-decoration: underline; }
+.article-body strong { color: var(--color-dark); font-weight: 700; }
 .article-body ul,
 .article-body ol { padding-left: 1.3em; }
 .article-body ul { list-style: disc; }
 .article-body ol { list-style: decimal; }
 .article-body li + li { margin-top: .4em; }
+.article-body li::marker { color: var(--color-primary); }
 .article-body img { border-radius: 1rem; }
+/* Pull quote, styled like the founder quote on About: bold, not italic —
+   Nunito is only loaded upright. */
 .article-body blockquote {
-  border-left: 3px solid #C45A2C;
+  border-left: 3px solid var(--color-primary);
   padding-left: 1.1em;
-  font-style: italic;
-  color: #1A1F2E;
+  font-weight: 700;
+  color: var(--color-dark);
 }
-.article-body hr { border: 0; border-top: 1px solid rgba(26,31,46,.12); margin: 2.2em 0; }
+.article-body hr { border: 0; border-top: 1px solid rgb(26 31 46 / 0.12); margin: 2.2em 0; }
