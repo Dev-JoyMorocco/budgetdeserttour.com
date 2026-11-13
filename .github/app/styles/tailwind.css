@@ -1,0 +1,547 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Brand colors (from design system) */
+  --color-primary: #C45A2C;   /* terracotta */
+  --color-primary-hover: #C7460E; /* darker terracotta — button hover */
+  --color-whatsapp:       #25A65B; /* WhatsApp buttons */
+  --color-whatsapp-hover: #009939;
+  --color-sand:    #F5EDE0;   /* background */
+  --color-dark:    #1A1F2E;   /* navy */
+  --color-forest:  #3D5A40;   /* green accent */
+
+  /* Fonts */
+  --font-display: 'Patua One', serif;
+  --font-body:    'Nunito', sans-serif;
+
+  /* Type scale — all in rem */
+  --text-hero:    clamp(2rem, 4vw, 2.625rem); /* responsive */
+  --text-h1:      2.625rem;  /* 42px */
+  --text-h2:      2.375rem;  /* 38px — Nunito Bold */
+  --text-h3:      1.25rem;   /* 20px — Nunito Bold */
+  --text-base:    1rem;      /* 16px — Nunito Regular */
+  --text-label:   0.875rem;  /* 14px — orange caps */
+  --text-label-2xs:   0.375rem;  /* 6px — price label */
+  --text-price:   1.5rem;    /* 24px — Patua One forest */
+  --text-btn:     1.125rem;  /* 18px — Patua One */
+  --text-review:  1rem;      /* 16px — Nunito Bold */
+  --text-author:  0.875rem;  /* 14px — Nunito Regular */
+
+  /* Layout */
+  --max-width-content: 76rem; /* 1216px */
+  --max-width-doc:     90rem; /* 1440px */
+
+  /* Spacing */
+  --spacing-section:    7.5rem;   /* 120px section padding */
+  --spacing-subtitle:   5rem;     /* 80px subtitle bottom margin */
+  --spacing-route-top:    clamp(3rem, 6vw, 5.5rem);     /* 48–88px — TourRoutes section pt */
+  --spacing-route-cards:  clamp(2.75rem, 5vw, 4.75rem); /* 44–76px — TourRoutes cards wrapper mt */
+  --spacing-route-bottom: clamp(4.5rem, 7vw, 7.5rem);   /* 72–120px — TourRoutes cards wrapper pb */
+
+  /* Radii */
+  --radius-card:     1.5rem;   /* 24px */
+  --radius-route:    1.625rem; /* 26px — TourRoutes outer card */
+  --radius-route-sm: 1.125rem; /* 18px — TourRoutes image / inner panel */
+
+  /* Shadows */
+  --shadow-card:      0 0.2rem .5rem rgba(0, 0, 0, 0.1);
+  --shadow-card-m:    0 0.25rem .5rem rgba(0, 0, 0, 0.15);
+
+  /* Navbar slogan over bright hero photos. Bump to 2px 2px if it reads too faint. */
+  --text-shadow-slogan: 1px 1px rgb(26 31 46 / 0.6);
+  --shadow-btn:       0 0.25rem .5rem rgba(0, 0, 0, 0.15);
+  --shadow-btn-hover: 0 0.75rem 2rem rgba(199, 70, 14, 0.4);
+  --shadow-whatsapp:       0 0.25rem .5rem rgba(0, 0, 0, 0.15);
+  --shadow-whatsapp-hover: 0 0.75rem 2rem rgba(0, 153, 57, 0.45);
+
+  /* Button hover transition — colour + shadow only, so it stays on under reduced motion */
+  --ease-btn: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-btn: 0.35s;
+
+  /* Type scale (fluid) */
+  --text-route-heading:    clamp(2rem, 4.4vw, 3.1rem);
+  --text-route-subheading: clamp(1.0625rem, 1.6vw, 1.25rem);
+
+  /* Tracking */
+  --tracking-eyebrow: 0.18em;
+}
+
+/* ─── Font utilities (explicit — bypasses CSS variable indirection) ─── */
+.font-display { font-family: 'Patua One', serif; }
+.font-body    { font-family: 'Nunito', sans-serif; }
+
+/* ─── Base ─── */
+@layer base {
+  html {
+    font-size: clamp(0.875rem, 0.5rem + 1.1vw, 1rem);
+  }
+
+  /* Hand cursor on everything clickable — the one place this is set. In the
+     base layer so a utility such as cursor-grab can still override it. */
+  a,
+  button,
+  [role='button'],
+  label[for],
+  summary,
+  select,
+  input[type='submit'],
+  input[type='button'],
+  input[type='reset'],
+  input[type='checkbox'],
+  input[type='radio'] {
+    cursor: pointer;
+  }
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background-color: var(--color-sand);
+  color: var(--color-dark);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  line-height: 1.4 !important;
+}
+
+a { text-decoration: none; }
+
+/* ─── Layout components ─── */
+@layer components {
+  .container {
+    width: 100%;
+    max-width: var(--max-width-content);
+    margin-inline: auto;
+    padding-inline: 1.5rem; 
+  } 
+}
+
+/* ─── Orange CTA — single source for every orange button ───
+   Owns its default background + shadow (like .btn-whatsapp) so the hover is a
+   single-value change that the browser can fade. Don't combine with bg-* / shadow-*.
+   .btn-primary       background + shadow
+   .btn-primary-flat  background only (TourRoutes cards)
+   .btn-hover-target  orange icon inside a .group button (video play) */
+.btn-primary,
+.btn-primary-flat,
+.btn-hover-target {
+  background-color: var(--color-primary);
+  transition-property: background-color, box-shadow;
+  transition-duration: var(--duration-btn);
+  transition-timing-function: var(--ease-btn);
+}
+.btn-primary {
+  box-shadow: var(--shadow-btn);
+}
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled),
+  .group:hover:not(:disabled) .btn-hover-target {
+    background-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-btn-hover);
+  }
+  .btn-primary-flat:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+  }
+}
+
+/* ─── Booking controls — each class owns its default, selected and hover
+   state (like .btn-primary) so the hover is a single fade. Colour + shadow only. ─── */
+.btn-light,
+.btn-dark,
+.btn-day,
+.btn-segment,
+.btn-card {
+  transition-property: background-color, box-shadow, border-color, color;
+  transition-duration: var(--duration-btn);
+  transition-timing-function: var(--ease-btn);
+}
+.btn-light {                        /* white pill: stepper +/-, See All Stories, Load more */
+  background-color: #fff;
+  color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+.btn-light:disabled {               /* stepper at its min/max */
+  opacity: 0.4;
+  box-shadow: 0 0 0 transparent;
+}
+.btn-dark {                         /* calendar month arrows */
+  background-color: var(--color-dark);
+  color: #fff;
+  box-shadow: 0 0 0 transparent;
+}
+.btn-day {                          /* calendar day */
+  background-color: transparent;
+  color: rgb(26 31 46 / 0.8);
+  box-shadow: 0 0 0 transparent;
+}
+.btn-day[data-state='range'] {
+  background-color: rgb(196 90 44 / 0.18);
+  color: var(--color-primary);
+}
+.btn-day[data-state='edge'] {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+.btn-day:disabled {                 /* today and past days */
+  color: rgb(26 31 46 / 0.25);
+}
+.btn-dark:disabled {                /* month arrow at the first bookable month */
+  opacity: 0.3;
+}
+.btn-segment {                      /* Yes/No, One way/Return */
+  background-color: transparent;
+  color: var(--color-dark);
+  box-shadow: 0 0 0 transparent;
+}
+.btn-segment[aria-pressed='true'] {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+.btn-card {                         /* route / camp selection */
+  background-color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-card);
+}
+.btn-card[aria-pressed='true'] {
+  background-color: var(--color-primary);
+}
+@media (hover: hover) {
+  .btn-light:hover:not(:disabled),
+  .btn-dark:hover:not(:disabled),
+  .btn-day:hover:not(:disabled),
+  .btn-segment:hover {
+    background-color: var(--color-primary-hover);
+    color: #fff;
+    box-shadow: var(--shadow-btn-hover);
+  }
+  .btn-card:hover {
+    box-shadow: var(--shadow-btn-hover);
+  }
+  .btn-card:not([aria-pressed='true']):hover {
+    border-color: var(--color-primary);
+  }
+}
+
+/* ─── Every other button — shared timing; hover look stays per component ─── */
+.btn-smooth {
+  transition-property: background-color, border-color, color, box-shadow, transform;
+  transition-duration: var(--duration-btn);
+  transition-timing-function: var(--ease-btn);
+}
+
+/* ─── WhatsApp button — single source for every WhatsApp CTA ───
+   Same rule as .btn-primary: only background colour and shadow change on hover. */
+.btn-whatsapp {
+  background-color: var(--color-whatsapp);
+  box-shadow: var(--shadow-whatsapp);
+  color: #fff;
+  transition-property: background-color, box-shadow;
+  transition-duration: var(--duration-btn);
+  transition-timing-function: var(--ease-btn);
+}
+@media (hover: hover) {
+  .btn-whatsapp:hover:not([aria-disabled='true']) {
+    background-color: var(--color-whatsapp-hover);
+    box-shadow: var(--shadow-whatsapp-hover);
+  }
+}
+.btn-whatsapp[aria-disabled='true'] {
+  opacity: 0.5;
+}
+
+/* ─── Price underline accent ─── */
+.price-underline {
+  position: relative;
+  display: inline-block;
+}
+.price-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  right: 0;
+  /* Hand-drawn swoosh rather than a straight bar. The artwork is wider than it
+     is tall (33.64 x 6.16), so it is stretched to the width of the word and
+     given a fixed height rather than keeping its aspect ratio. */
+  height: 0.6rem;
+  background: url('../assets/underline-light.svg') no-repeat center / 100% 100%;
+}
+
+/* For the same underline on a dark ground, where the orange would disappear. */
+.price-underline--light::after {
+  background-image: url('../assets/underline-light.svg');
+}
+
+/* ─── FAQ accordion ─── */
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.3s;
+}
+.faq-item.open .faq-answer {
+  max-height: 18.75rem;
+  padding-bottom: 1.25rem;
+}
+.faq-icon {
+  transition: transform 0.3s, background 0.2s, border-color 0.2s;
+}
+.faq-item.open .faq-icon {
+  transform: rotate(45deg);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+/* ─── Booking CTA — dark band is always exactly half the 16:9 card's height ─── */
+.booking-cta-band {
+  height: calc((min(var(--max-width-content), 100vw) - 3rem) * 0.28125);
+}
+.video-card-shadow  { box-shadow: 0 2.5rem 5.625rem -1.875rem rgba(0,0,0,0.55); }
+.play-btn-shadow    { box-shadow: 0 0.5rem 1.5rem rgba(196,90,44,0.45); }
+
+/* ─── Tour route cards ─── */
+.route-text-shadow {
+  text-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.55);
+}
+
+/* ─── Hero layers ─── */
+.hero-bg {
+  background: radial-gradient(circle, rgba(68,42,52,1) 0%, rgba(29,33,48,1) 100%);
+}
+.hero-gradient {
+  background: linear-gradient(0deg, rgba(110,55,41,1) 0%, rgba(110,55,41,0) 60%);
+}
+
+/* ─── Carousel dot indicator — spring-pop on the active pill ─── */
+@keyframes dot-pop-in {
+  0%   { width: 0.25rem;  opacity: 0.5; }
+  45%  { width: 1.875rem; opacity: 1;   }
+  70%  { width: 1rem;                   }
+  85%  { width: 1.375rem;               }
+  100% { width: 1.25rem;                }
+}
+
+/* ─── Journey spine line — extends through the inter-row gap to connect day circles ─── */
+.journey-spine-line {
+  bottom: calc(-1 * clamp(3.5rem, 8vw, 6.875rem));
+}
+
+/* ─── Day circle ─── */
+.day-circle {
+  position: relative;
+  box-shadow: 0 0.5rem 1.125rem rgba(193, 90, 43, 0.32);
+}
+
+@keyframes day-ripple {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  75%  { transform: scale(2.2); opacity: 0;   }
+  100% { transform: scale(2.2); opacity: 0;   }
+}
+.day-ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: rgba(196, 90, 44, 0.42);
+  pointer-events: none;
+  animation: day-ripple 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+[data-day="1"] .day-ping { animation-delay: 0s; }
+[data-day="2"] .day-ping { animation-delay: 0.8s; }
+[data-day="3"] .day-ping { animation-delay: 1.6s; }
+[data-step="1"] .day-ping { animation-delay: 0s; }
+[data-step="2"] .day-ping { animation-delay: 0.5s; }
+[data-step="3"] .day-ping { animation-delay: 1s; }
+[data-step="4"] .day-ping { animation-delay: 1.5s; }
+[data-step="5"] .day-ping { animation-delay: 2s; }
+
+/* ─── Image carousel ─── */
+.carousel-wrap { --dp: 0; }
+
+.carousel-peek-back {
+  position: absolute;
+  left: 6%; right: 6%;
+  height: 18.75rem;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  background: var(--color-dark);
+  pointer-events: none;
+  top: calc(var(--dp) * 3px);
+  transition: top 0.18s ease;
+}
+.carousel-peek-mid {
+  position: absolute;
+  left: 3%; right: 3%;
+  height: 18.75rem;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  background: var(--color-dark);
+  pointer-events: none;
+  top: calc(14px - var(--dp) * 7px);
+  transition: top 0.18s ease;
+}
+.carousel-wrap[data-phase="drag"] .carousel-peek-back,
+.carousel-wrap[data-phase="drag"] .carousel-peek-mid {
+  transition: none;
+}
+
+.carousel-card {
+  transform-origin: 50% 85%;
+  transform: translateX(0) rotate(0deg);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+.carousel-wrap[data-phase="drag"] .carousel-card {
+  transform: translateX(var(--dx, 0)) rotate(var(--dr, 0deg));
+  transition: none;
+  cursor: grabbing;
+}
+.carousel-wrap[data-phase="exit-l"] .carousel-card {
+  transform: translateX(-130%) rotate(-28deg);
+  transition: transform 0.38s cubic-bezier(0.4, 0, 0.8, 0.2);
+}
+.carousel-wrap[data-phase="exit-r"] .carousel-card {
+  transform: translateX(130%) rotate(28deg);
+  transition: transform 0.38s cubic-bezier(0.4, 0, 0.8, 0.2);
+}
+.carousel-wrap[data-phase="reset"] .carousel-card {
+  transform: translateX(0) rotate(20deg);
+  transition: none;
+}
+
+/* ─── Testimonials — slide track + staggered card entrance ─── */
+@keyframes tst-rise {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: none;             opacity: 1; }
+}
+.tst-track {
+  transform: translateX(calc(-1 * var(--tst-slide, 0) * 100%));
+}
+[data-tst-active="true"] li {
+  animation: tst-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+[data-tst-active="true"] li:nth-child(1) { animation-delay: 0.08s; }
+[data-tst-active="true"] li:nth-child(2) { animation-delay: 0.17s; }
+[data-tst-active="true"] li:nth-child(3) { animation-delay: 0.26s; }
+
+/* ─── FAQ accordion ─── */
+.faq-body {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity   0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-body[data-open="true"] {
+  max-height: 28.75rem;
+  opacity: 1;
+}
+.faq-chevron {
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-chevron[data-open="true"] {
+  transform: rotate(180deg);
+}
+.faq-chevron path:last-child {
+  opacity: 1;
+  transition: opacity 0.42s ease;
+}
+.faq-chevron[data-open="true"] path:last-child {
+  opacity: 0;
+}
+
+/* ─── CapturedByTribe nav button — arrow bounce on hover ─── */
+@keyframes arrow-bounce-r {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(4px); }
+}
+@keyframes arrow-bounce-l {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(-4px); }
+}
+.tribe-nav-btn:hover .tribe-arrow-next {
+  animation: arrow-bounce-r 0.55s ease-in-out infinite;
+}
+.tribe-nav-btn:hover .tribe-arrow-prev {
+  animation: arrow-bounce-l 0.55s ease-in-out infinite;
+}
+
+/* ─── SiteFooter ─── */
+.sf-headline {
+  text-shadow: 0 2px 18px rgba(40, 16, 8, 0.4);
+}
+.sf-checks {
+  column-gap: clamp(20px, 3vw, 34px);
+}
+.sf-footer-bar {
+  padding-bottom: clamp(40px, 6vw, 60px);
+}
+.sf-camel {
+  bottom: 3.75rem;
+  width: clamp(120px, 11vw, 180px);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* ── Blog article body ──────────────────────────────────────────────
+   Shopify article HTML is authored in Admin, so it arrives as plain
+   tags. Tailwind's reset strips their defaults; restore readable
+   rhythm without pulling in a typography plugin. */
+.article-body > * + * { margin-top: 0.75rem; }
+.article-body h2 {
+  /* Patua One ships in one weight, like every other heading on the site. */
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  line-height: 1.2;
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: 1.375rem;
+  color: var(--color-dark);
+}
+.article-body * + h2 { margin-top: 2.5rem; }
+.article-body h3 {
+  font-size: var(--text-h3);
+  line-height: 1.625rem;
+  font-weight: 700;
+  margin-top: 2.125rem;
+  margin-bottom: 0.625rem;
+  color: var(--color-dark);
+}
+/* Justified with hyphenation, matching the post design. Left-aligned on narrow
+   screens, where justification opens ugly rivers between words. */
+.article-body p { text-align: justify; hyphens: auto; }
+@media (max-width: 40rem) {
+  .article-body p { text-align: left; hyphens: manual; }
+}
+.article-body a {
+  color: var(--color-primary);
+  text-decoration: none;
+  text-underline-offset: 2px;
+  transition: color var(--duration-btn) var(--ease-btn);
+}
+.article-body a:hover { color: var(--color-primary-hover); text-decoration: underline; }
+.article-body strong { color: var(--color-dark); font-weight: 700; }
+.article-body ul,
+.article-body ol { padding-left: 1.3em; }
+.article-body ul { list-style: disc; }
+.article-body ol { list-style: decimal; }
+.article-body li + li { margin-top: .4em; }
+.article-body li::marker { color: var(--color-primary); }
+.article-body img { border-radius: 1rem; }
+/* Pull quote, styled like the founder quote on About: bold, not italic —
+   Nunito is only loaded upright. */
+.article-body blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 1.1em;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+.article-body hr { border: 0; border-top: 1px solid rgb(26 31 46 / 0.12); margin: 2.2em 0; }

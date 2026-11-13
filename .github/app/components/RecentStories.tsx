@@ -1,0 +1,130 @@
+import {Link} from 'react-router';
+import {SafeImage} from './SafeImage';
+import {useT} from '~/lib/ui-strings';
+import {Underline} from './Underline';
+
+export interface Story {
+  href: string;
+  image: {src: string; alt: string};
+  category: string;
+  title: string;
+  date: string;
+  readTime: string;
+}
+
+export interface RecentStoriesProps {
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+  stories?: Story[];
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+/**
+ * The "From the Sahara" block at the foot of a post. Renders nothing when there
+ * are no other posts to show, rather than an empty heading over blank space.
+ */
+export function RecentStories({
+  eyebrow,
+  title,
+  subtitle,
+  stories = [],
+  ctaLabel,
+  ctaHref = '/blog',
+}: RecentStoriesProps) {
+  const t = useT();
+  if (!stories.length) return null;
+
+  return (
+    <section
+      aria-label={t('aria.post.recent', 'Recent stories')}
+      className="bg-linear-to-b from-white to-sand pb-27.5 pt-section font-body"
+    >
+      <div className="mx-auto max-w-316 px-6">
+        <div className="mb-18 text-center">
+          <div className="mb-10 inline-flex flex-col items-center gap-1.5">
+            <span className="text-label font-bold uppercase text-primary">
+              {eyebrow || t('post.recent_eyebrow', 'Recent Stories')}
+            </span>
+            <Underline />
+          </div>
+          <h2 className="mb-3 font-display text-[clamp(1.75rem,3.4vw,2.375rem)] leading-tight text-dark">
+            {title || t('post.recent_heading', 'From the Sahara')}
+          </h2>
+          <p className="mx-auto max-w-75 text-base leading-5.5 text-dark/80">
+            {subtitle ||
+              t(
+                'post.recent_subtitle',
+                'Guides, tips, and tales from the Sahara written by people who actually live here.',
+              )}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+          {stories.map((s) => (
+            <StoryCard key={s.href} story={s} />
+          ))}
+        </div>
+
+        <div className="mt-16 flex justify-center">
+          <Link
+            to={ctaHref}
+            className="inline-flex h-13 items-center gap-1.5 rounded-full px-9 font-display text-btn btn-light"
+          >
+            {ctaLabel || t('post.see_all', 'See All Stories')}{' '}
+            <span aria-hidden="true">&rarr;</span>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Sub-components ──────────────────────────────────────────────
+
+function StoryCard({story}: {story: Story}) {
+  const meta = [story.date, story.readTime].filter(Boolean).join(' · ');
+  return (
+    <Link
+      to={story.href}
+      className="group flex h-105 flex-col overflow-hidden rounded-2xl bg-white shadow-card-m transition-transform duration-200 hover:-translate-y-1 md:col-span-4"
+    >
+      <div className="relative h-72.5 flex-none">
+        {/* Scrim so the category label stays readable over a bright photo. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 z-1 h-21 bg-linear-to-b from-transparent to-black/35"
+        />
+        <SafeImage
+          src={story.image.src}
+          alt={story.image.alt}
+          className="h-full w-full object-cover"
+          loading="lazy"
+        />
+        {story.category && (
+          <span className="absolute bottom-8 left-1/2 z-2 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap font-display text-xs text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.5)]">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+              <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+            </svg>
+            {story.category}
+          </span>
+        )}
+      </div>
+      <div className="relative -mt-4 flex z-1 flex-1 flex-col items-center justify-center rounded-t-2xl bg-white px-6 py-4 text-center">
+        <h3 className="mb-5 max-w-65 text-[20px] font-medium leading-6 text-dark">
+          {story.title}
+        </h3>
+        {meta && <p className="text-xs font-medium text-dark/70">{meta}</p>}
+      </div>
+    </Link>
+  );
+}
+
+export default RecentStories;
